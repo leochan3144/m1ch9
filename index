@@ -1,0 +1,1266 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Distributions, E(X) &amp; Var(X)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: graph-paper ground; a floating chapter rail on the left (becomes a sticky strip on phones) and one lesson view at a time on the right */
+:root{
+  --paper:#F3F5F9; --surface:#FFFFFF; --sunk:#E9EDF4; --ink:#15213A; --ink-2:#47546E; --ink-3:#7A869B; --line:#D5DBE6; --grid:rgba(55,85,150,.075);
+  --violet:#5F35CC; --violet-soft:#ECE6FC; --on-violet:#FFFFFF;
+  --amber:#AD6B00; --amber-soft:#FFF1D4;
+  --teal:#0A7C6F; --teal-soft:#D9F1EC;
+  --red:#BF372D; --red-soft:#FBE3E0;
+  --c0:#0A7C6F; --c1:#5F35CC; --c2:#AD6B00; --c3:#BF372D;
+  --font-display:'Archivo','Arial Narrow',system-ui,sans-serif;
+  --font-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI','PingFang HK','Microsoft JhengHei',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0D131E; --surface:#151D2C; --sunk:#1C2638; --ink:#E6EAF2; --ink-2:#AAB4C7; --ink-3:#77839A; --line:#2A3549; --grid:rgba(150,175,230,.05);
+  --violet:#A88CFF; --violet-soft:#272050; --on-violet:#140C2E;
+  --amber:#F0B44A; --amber-soft:#3A2D12;
+  --teal:#44C6B3; --teal-soft:#113430;
+  --red:#F27E74; --red-soft:#401F1C;
+  --c0:#44C6B3; --c1:#A88CFF; --c2:#F0B44A; --c3:#F27E74; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0D131E; --surface:#151D2C; --sunk:#1C2638; --ink:#E6EAF2; --ink-2:#AAB4C7; --ink-3:#77839A; --line:#2A3549; --grid:rgba(150,175,230,.05);
+  --violet:#A88CFF; --violet-soft:#272050; --on-violet:#140C2E;
+  --amber:#F0B44A; --amber-soft:#3A2D12;
+  --teal:#44C6B3; --teal-soft:#113430;
+  --red:#F27E74; --red-soft:#401F1C;
+  --c0:#44C6B3; --c1:#A88CFF; --c2:#F0B44A; --c3:#F27E74; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.app{display:grid;grid-template-columns:270px minmax(0,1fr);gap:36px;max-width:1220px;margin:0 auto}
+
+/* rail */
+.rail{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:start;max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 12px 16px}
+.brand{padding:0 8px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.brand .eyebrow{margin:0}
+.brand h2{font-family:var(--font-display);font-stretch:112%;font-weight:800;font-size:1.22rem;line-height:1.15;margin:.3rem 0 .5rem;text-wrap:balance}
+.brand .desc{font-size:.84rem;color:var(--ink-2);margin:0 0 .7rem}
+.prog{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:.75rem;color:var(--ink-2)}
+.prog .track{flex:1;height:6px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.prog .fill{height:100%;background:var(--teal);width:0;transition:width .4s}
+.nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.nav a{display:grid;grid-template-columns:26px 1fr 16px;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:.92rem;line-height:1.3}
+.nav a .n{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-3);text-align:center;border:1px solid var(--line);border-radius:6px;padding:1px 0}
+.nav a .tick{color:var(--teal);font-size:.85rem;visibility:hidden}
+.nav a.done .tick{visibility:visible}
+.nav a:hover{background:var(--sunk);color:var(--ink)}
+.nav a[aria-current="page"]{background:var(--violet-soft);color:var(--ink);font-weight:600}
+.nav a[aria-current="page"] .n{border-color:var(--violet);color:var(--violet)}
+.rail-foot{font-size:.76rem;color:var(--ink-3);padding:12px 8px 0;margin-top:10px;border-top:1px solid var(--line)}
+
+/* views */
+main{min-width:0}
+.view{max-width:840px;display:flex;flex-direction:column;gap:22px;padding-block:6px 30px}
+.view > *{margin:0}
+.eyebrow{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--violet);font-weight:500}
+h1{font-family:var(--font-display);font-stretch:115%;font-weight:800;font-size:clamp(1.85rem,4.2vw,2.75rem);line-height:1.06;letter-spacing:-.012em;text-wrap:balance;margin:0}
+h2{font-family:var(--font-display);font-stretch:108%;font-weight:750;font-size:1.42rem;line-height:1.2;text-wrap:balance;margin:0}
+h3{font-family:var(--font-display);font-stretch:100%;font-weight:700;font-size:1.08rem;line-height:1.3;margin:0}
+p{max-width:68ch}
+.lead{font-size:1.1rem;color:var(--ink-2)}
+.head{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.tb{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-2);background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.term{font-weight:600}
+.zh{font-weight:400;color:var(--ink-3);font-size:.86em;margin-left:.3em}
+.muted{color:var(--ink-2)}
+.small{font-size:.88rem}
+strong{font-weight:600}
+
+.block{display:flex;flex-direction:column;gap:12px}
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.lab-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lab-h .tag{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--on-violet);background:var(--violet);border-radius:5px;padding:2px 7px}
+.lab-h .tag.amber{background:var(--amber);color:var(--surface)}
+.lab-h .tag.teal{background:var(--teal);color:var(--surface)}
+.svgwrap{overflow-x:auto}
+.svgwrap svg{display:block;width:100%;height:auto;min-width:0}
+.caption{font-size:.92rem;color:var(--ink-2);min-height:1.5em}
+
+.defn{overflow-wrap:anywhere;min-width:0;background:var(--violet-soft);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.defn > .lbl{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--violet);font-weight:500}
+.defn p{margin:0}
+.warn{background:var(--red-soft);border-radius:12px;padding:14px 18px;display:flex;flex-direction:column;gap:6px}
+.warn > .lbl{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--red);font-weight:500}
+.warn ul,.tip ul{margin:0;padding-left:1.2em}
+.tip{background:var(--amber-soft);border-radius:12px;padding:14px 18px;display:flex;flex-direction:column;gap:6px}
+.tip > .lbl{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--amber);font-weight:500}
+.tip p,.warn p{margin:0}
+
+.btn{font:inherit;font-size:.9rem;font-weight:500;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:.45em .9em;cursor:pointer;line-height:1.3;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--ink-3);background:var(--sunk)}
+.btn.primary{background:var(--violet);border-color:var(--violet);color:var(--on-violet)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn[aria-pressed="true"]{background:var(--violet-soft);border-color:var(--violet);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.grid2 > *{min-width:0}
+
+.dt{border-collapse:collapse;font-variant-numeric:tabular-nums;margin:0 auto}
+.dt th,.dt td{border:1px solid var(--line);padding:6px 12px;text-align:center;min-width:52px}
+.dt th{font-family:var(--font-mono);font-weight:500;font-size:.82rem;background:var(--sunk);color:var(--ink-2);white-space:nowrap}
+.dtwrap{overflow-x:auto}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.82em;line-height:1.08}
+.fr > span:first-child{border-bottom:1px solid currentColor;padding:0 .2em}
+mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
+mjx-container[display="true"]{margin:.5em 0 !important}
+.mono{font-family:var(--font-mono)}
+.num{font-variant-numeric:tabular-nums}
+
+/* svg classes */
+svg text{font-family:var(--font-body);fill:var(--ink)}
+svg .axis{stroke:var(--ink-3);stroke-width:1.5}
+svg .gridl{stroke:var(--line);stroke-width:1}
+svg .lbl{fill:var(--ink-2);font-size:13px}
+svg .lbl-s{fill:var(--ink-3);font-size:11px;font-family:var(--font-mono)}
+svg .bar-v{fill:var(--violet)}
+svg .bar-t{fill:var(--teal)}
+svg .bar-a{fill:var(--amber)}
+svg .ghost{fill:none;stroke:var(--ink-3);stroke-width:1.5;stroke-dasharray:4 3}
+svg .fulcrum{fill:var(--amber)}
+svg .x0{fill:var(--c0)} svg .x1{fill:var(--c1)} svg .x2{fill:var(--c2)} svg .x3{fill:var(--c3)}
+svg .chiptxt{fill:var(--surface);font-size:12px;font-weight:600;font-family:var(--font-mono)}
+.grow{transform-box:fill-box;transform-origin:50% 100%;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.slide{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+
+/* start */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center}
+.hero .lab{gap:6px}
+@media (max-width:700px){.hero{grid-template-columns:minmax(0,1fr)}}
+.targets{display:flex;flex-direction:column;gap:10px}
+.targets .t{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:baseline}
+.targets .code{font-family:var(--font-mono);font-size:.78rem;color:var(--violet);white-space:nowrap}
+.route{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:8px}
+.route a{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;text-decoration:none;color:var(--ink);font-size:.92rem}
+.route a:hover{border-color:var(--violet)}
+.route .mins{font-family:var(--font-mono);font-size:.74rem;color:var(--ink-3);white-space:nowrap}
+.route a.done{border-color:var(--teal)}
+.route a.done .mins::before{content:"✓ ";color:var(--teal)}
+
+/* review dice */
+#diceSvg .pt circle{fill:var(--sunk);stroke:var(--ink-3);stroke-width:1.5;transition:fill .25s,stroke .25s}
+#diceSvg .pt.on circle{fill:var(--violet);stroke:var(--violet)}
+#diceSvg .pt text{font-size:18px;font-weight:600;text-anchor:middle}
+#diceSvg .pt.on text{fill:var(--on-violet)}
+#diceSvg .frame{fill:none;stroke:var(--ink-3);stroke-width:1.5}
+
+/* bag */
+#bagSvg .bag{fill:var(--sunk);stroke:var(--ink-3);stroke-width:2}
+.ballP{fill:var(--violet);stroke:var(--violet);stroke-width:1.5}
+.ballW{fill:var(--surface);stroke:var(--ink-2);stroke-width:1.5}
+#bagSvg .slot{fill:none;stroke:var(--ink-3);stroke-width:1.5;stroke-dasharray:4 4}
+#mapSvg .ell{fill:var(--sunk);stroke:var(--ink-3);stroke-width:1.5}
+#mapSvg .arr{stroke:var(--ink-3);stroke-width:1.5;fill:none;transition:stroke .2s}
+#mapSvg .arr.hot{stroke:var(--violet);stroke-width:3}
+#mapSvg .pair rect{fill:transparent;stroke:transparent;stroke-width:2;transition:stroke .2s}
+#mapSvg .pair.hot rect{stroke:var(--violet);fill:var(--violet-soft)}
+#mapSvg .val circle{fill:var(--surface);stroke:var(--ink-3);stroke-width:1.5;transition:all .2s}
+#mapSvg .val.hot circle{fill:var(--violet);stroke:var(--violet)}
+#mapSvg .val text{font-size:17px;font-weight:600;text-anchor:middle}
+#mapSvg .val.hot text{fill:var(--on-violet)}
+.ah{fill:var(--ink-3)} .ah2{fill:var(--violet)}
+.tally{display:flex;flex-direction:column;gap:8px}
+.tally .tr{display:grid;grid-template-columns:62px 1fr 92px;gap:10px;align-items:center;font-size:.88rem}
+.tally .trk{position:relative;height:18px;background:var(--sunk);border-radius:4px}
+.tally .fil{position:absolute;inset:0 auto 0 0;width:0;background:var(--violet);border-radius:4px;transition:width .3s}
+.tally .theo{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--amber)}
+.tally .cnt{font-family:var(--font-mono);font-size:.78rem;color:var(--ink-2);text-align:right}
+
+/* sorter, checker */
+.items{display:flex;flex-direction:column;gap:8px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.item .opts{display:flex;flex-wrap:wrap;gap:6px}
+.item .opts .btn{font-size:.8rem;padding:.35em .7em}
+.item .fb{grid-column:1/-1;font-size:.86rem;display:none}
+.item.right{border-color:var(--teal);background:var(--teal-soft)}
+.item.wrong{border-color:var(--red);background:var(--red-soft)}
+.item.right .fb,.item.wrong .fb{display:block}
+@media (max-width:600px){.item{grid-template-columns:minmax(0,1fr)}}
+
+/* tree */
+#treeSvg .edge{stroke:var(--ink-3);stroke-width:1.6;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .6s ease}
+#treeSvg .edge.on{stroke-dashoffset:0}
+#treeSvg .node{fill:var(--ink-2)}
+#treeSvg .elab{font-size:12px;font-weight:600;fill:var(--violet);text-anchor:middle;font-family:var(--font-mono)}
+#treeSvg .seq{font-size:14px;font-family:var(--font-mono);font-weight:500}
+#treeSvg [data-s]:not(.edge){opacity:0;transition:opacity .45s}
+#treeSvg [data-s].on:not(.edge){opacity:1}
+.reveal{opacity:0;transition:opacity .45s}
+.reveal.on{opacity:1}
+#coinBars .grow{transform:scaleY(0)}
+#coinBars .grow.on{transform:scaleY(1)}
+
+/* tabs stacked */
+.stack{display:grid}
+.stack > *{grid-area:1/1;visibility:hidden;opacity:0;transition:opacity .3s}
+.stack > .on{visibility:visible;opacity:1}
+.faces{display:flex;gap:8px;flex-wrap:wrap}
+.face{width:44px;height:44px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-family:var(--font-mono);font-size:1.1rem;border:2px solid currentColor}
+.face.f1{color:var(--c0)} .face.f2{color:var(--c1)} .face.f3{color:var(--c2)}
+.status{font-size:.9rem;font-weight:600;padding:6px 12px;border-radius:8px;align-self:flex-start}
+.status.ok{background:var(--teal-soft);color:var(--teal)}
+.status.bad{background:var(--red-soft);color:var(--red)}
+.status.mid{background:var(--amber-soft);color:var(--amber)}
+input[type=range]{width:100%;accent-color:var(--violet)}
+.slider{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.slider label{font-family:var(--font-mono);font-size:.85rem}
+.slider output{font-family:var(--font-mono);font-size:.9rem;min-width:3.5em;text-align:right}
+
+/* expectation */
+#simCanvas{width:100%;height:220px;display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.stat .k{font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.stat .v{font-family:var(--font-display);font-stretch:105%;font-weight:700;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.wbtns{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding-inline:1.923%}
+.wbtns > div{display:flex;flex-wrap:wrap;justify-content:center;gap:4px}
+.wbtns .btn{padding:.2em .55em;font-size:.85rem}
+.lastwin{font-family:var(--font-mono);font-size:.85rem;color:var(--ink-2)}
+
+/* variance */
+.contrib{display:flex;height:26px;border-radius:6px;overflow:hidden;background:var(--sunk)}
+.contrib > div{display:grid;place-items:center;font-family:var(--font-mono);font-size:.72rem;color:var(--surface);transition:width .5s;white-space:nowrap;overflow:hidden}
+.vt td.c,.vt th.c{transition:opacity .35s}
+.vt .c{opacity:0}
+.vt .c.on{opacity:1}
+.vt td.sum{font-weight:600;background:var(--amber-soft)}
+.vres{display:flex;flex-direction:column;gap:4px;font-family:var(--font-mono);font-size:.92rem}
+.vres div{opacity:0;transition:opacity .35s}
+.vres div.on{opacity:1}
+
+/* transform */
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px}
+.ro{border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:.9rem;display:flex;flex-direction:column;gap:3px}
+.ro .k{font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.ro .eq{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.ro .match{color:var(--teal);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.84rem;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+
+/* stepper */
+.stepper{display:flex;flex-direction:column;gap:12px}
+.stepper .q{display:flex;flex-direction:column;gap:8px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;counter-reset:st}
+.step{counter-increment:st;max-height:0;opacity:0;overflow:hidden;transition:max-height .45s ease,opacity .35s,margin .35s;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px}
+.step::before{content:counter(st);font-family:var(--font-mono);font-size:.75rem;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--violet-soft);color:var(--violet);margin-top:2px}
+.step.shown{max-height:60em;opacity:1;margin-bottom:10px}
+.step > div{min-width:0}
+.step p{margin:0 0 .3em}
+.skill-tag{font-family:var(--font-mono);font-size:.72rem;color:var(--amber);text-transform:uppercase;letter-spacing:.07em}
+
+/* quiz */
+.qcard{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.qcard .qh{display:flex;gap:10px;align-items:baseline}
+.qcard .qn{font-family:var(--font-mono);font-size:.78rem;color:var(--violet);white-space:nowrap}
+.qopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px}
+.qopt{text-align:left}
+.qopt.right{background:var(--teal-soft);border-color:var(--teal)}
+.qopt.wrong{background:var(--red-soft);border-color:var(--red)}
+.qin{display:flex;gap:8px;flex-wrap:wrap}
+.qin input{font:inherit;font-family:var(--font-mono);padding:.4em .6em;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);width:9em}
+.qfb{font-size:.88rem;border-radius:8px;padding:8px 12px}
+.qfb.ok{background:var(--teal-soft)} .qfb.no{background:var(--red-soft)}
+.score{font-family:var(--font-display);font-stretch:110%;font-weight:800;font-size:2rem}
+
+/* summary */
+.fcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.fcard{overflow-wrap:anywhere;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.fcard h3{font-size:.98rem}
+.gloss{width:100%}
+.gloss td,.gloss th{text-align:left}
+textarea{width:100%;min-height:130px;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);resize:vertical}
+
+/* view foot */
+.view-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:18px;margin-top:8px}
+.done-toggle[aria-pressed="true"]{background:var(--teal-soft);border-color:var(--teal);color:var(--teal)}
+
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+details summary{cursor:pointer;font-weight:600;font-size:.94rem}
+
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr);gap:18px}
+  .rail{top:env(safe-area-inset-top,0px);z-index:5;max-height:none;border-radius:12px;padding:10px 8px 8px}
+  .brand{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 6px 8px;margin-bottom:6px}
+  .brand h2{font-size:1rem;margin:0}
+  .brand .desc,.brand .eyebrow,.rail-foot{display:none}
+  .brand .prog{min-width:110px}
+  .nav ol{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+  .nav a{white-space:nowrap;grid-template-columns:auto auto auto;gap:6px;padding:6px 9px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+</style>
+
+<div class="app">
+<aside class="rail" aria-label="Chapter sections">
+  <div class="brand">
+    <div>
+      <p class="eyebrow">HKDSE M1 · Chapter 9</p>
+      <h2>Distributions, E(X) &amp; Var(X)</h2>
+      <p class="desc">Pre-lesson study. Work top to bottom; each section has something to try.</p>
+    </div>
+    <div class="prog"><div class="track"><div class="fill" id="progFill"></div></div><span id="progTxt">0/11</span></div>
+  </div>
+  <nav class="nav"><ol id="navList"></ol></nav>
+  <p class="rail-foot">Ticks are saved in this browser only. Textbook references point to Module 1 Vol. 2, Ch. 9.</p>
+</aside>
+
+<main>
+
+<!-- ===================== START ===================== -->
+<section class="view" id="v-start">
+  <div class="head">
+    <p class="eyebrow">Pre-lesson · about 70 minutes</p>
+    <h1>Probability Distribution, Expectation and Variance</h1>
+    <p class="lead">Go through the sections in order before our lesson. Play with every diagram, try each question before you reveal the steps, and finish with the pre-lesson check. Write down anything you are unsure about in the notes box at the end and bring it to class.</p>
+  </div>
+
+  <div class="hero">
+    <div class="lab">
+      <div class="svgwrap">
+      <svg viewBox="0 0 360 205" role="img" aria-label="Bar chart of the number of heads in three coin tosses with the balance point at 1.5">
+        <line class="gridl" x1="30" x2="340" y1="122.5" y2="122.5"/>
+        <line class="gridl" x1="30" x2="340" y1="47.5" y2="47.5"/>
+        <text class="lbl-s" x="28" y="126" text-anchor="end">1/8</text>
+        <text class="lbl-s" x="28" y="51" text-anchor="end">3/8</text>
+        <rect class="x0" x="46" y="122.5" width="28" height="37.5" rx="2"/>
+        <rect class="x1" x="126" y="47.5" width="28" height="112.5" rx="2"/>
+        <rect class="x2" x="206" y="47.5" width="28" height="112.5" rx="2"/>
+        <rect class="x3" x="286" y="122.5" width="28" height="37.5" rx="2"/>
+        <line class="axis" x1="30" x2="340" y1="160" y2="160"/>
+        <text class="lbl" x="60" y="178" text-anchor="middle">0</text>
+        <text class="lbl" x="140" y="178" text-anchor="middle">1</text>
+        <text class="lbl" x="220" y="178" text-anchor="middle">2</text>
+        <text class="lbl" x="300" y="178" text-anchor="middle">3</text>
+        <path class="fulcrum" d="M180 161 L168 184 L192 184 Z"/>
+        <text class="lbl" x="180" y="200" text-anchor="middle" style="fill:var(--amber);font-weight:600">E(X) = 1.5</text>
+      </svg>
+      </div>
+    </div>
+    <div class="block">
+      <h2>The whole chapter in one picture</h2>
+      <p>Toss three fair coins and let <i>X</i> be the number of heads. The bars are the <strong>probability distribution</strong> of <i>X</i>. The triangle marks the <strong>expectation</strong> E(<i>X</i>) = 1.5, where the bars would balance. How far the bars spread from that point is measured by the <strong>variance</strong>.</p>
+      <p class="muted">By the end of this study you should be able to build this picture yourself and explain every number on it.</p>
+    </div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Syllabus</span><h3>HKDSE M1 learning targets covered</h3></div>
+    <div class="targets">
+      <div class="t"><span class="code">LU 11.1</span><span>Recognise the concept of a discrete random variable.</span></div>
+      <div class="t"><span class="code">LU 12.1</span><span>Recognise the concept of a discrete probability distribution and represent it as a table, a graph or a formula.</span></div>
+      <div class="t"><span class="code">LU 12.2</span><span>Recognise the concepts of expectation E(<i>X</i>) and variance Var(<i>X</i>) and use them to solve simple problems.</span></div>
+      <div class="t"><span class="code">LU 12.3</span><span>Use E(<i>aX</i> + <i>b</i>) = <i>a</i>E(<i>X</i>) + <i>b</i> and Var(<i>aX</i> + <i>b</i>) = <i>a</i>²Var(<i>X</i>) to solve simple problems.</span></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>Your route</h2>
+    <ol class="route" id="routeList"></ol>
+    <div class="row"><button class="btn primary" id="resumeBtn">Start section 2</button><span class="muted small" id="resumeTxt"></span></div>
+  </div>
+</section>
+
+<!-- ===================== REVIEW ===================== -->
+<section class="view" id="v-review" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 2 · Quick review</p>
+    <h1>What you already know</h1>
+    <p class="lead">Two ideas from junior forms carry this whole chapter: sample spaces, and the mean and variance of a set of data.</p>
+  </div>
+
+  <div class="block">
+    <h2>Sample space and event</h2>
+    <p>For a random experiment, the set of all possible outcomes is the <span class="term">sample space</span><span class="zh">樣本空間</span> <i>S</i>. Each outcome is a <em>sample point</em>. A set of some sample points is an <span class="term">event</span><span class="zh">事件</span>, named with a capital letter. When all sample points are equally likely, P(<i>E</i>) = n(<i>E</i>) ÷ n(<i>S</i>).</p>
+    <div class="lab">
+      <div class="lab-h"><span class="tag">Try it</span><h3>A fair dice is thrown once. Pick an event.</h3></div>
+      <div class="row" id="evBtns">
+        <button class="btn" data-ev="odd" aria-pressed="true">Odd number</button>
+        <button class="btn" data-ev="ge5" aria-pressed="false">At least 5</button>
+        <button class="btn" data-ev="prime" aria-pressed="false">Prime number</button>
+        <button class="btn" data-ev="even" aria-pressed="false">Even number</button>
+      </div>
+      <div class="svgwrap"><svg id="diceSvg" viewBox="0 0 380 190" role="img" aria-label="Sample space of a dice with the chosen event highlighted"></svg></div>
+      <p class="caption" id="evOut"></p>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>Mean, variance and standard deviation of data</h2>
+    <p>For data <i>x</i><sub>1</sub>, …, <i>x<sub>n</sub></i> with frequencies <i>f</i><sub>1</sub>, …, <i>f<sub>n</sub></i>:</p>
+    <div class="defn">
+      \[\bar{x}=\frac{\sum x_i f_i}{\sum f_i},\qquad \sigma^2=\frac{\sum (x_i-\bar{x})^2 f_i}{\sum f_i},\qquad \sigma=\sqrt{\sigma^2}\]
+    </div>
+    <div class="lab">
+      <div class="lab-h"><span class="tag">Key link</span><h3>Data: 5, 5, 8, 8, 8, 14</h3></div>
+      <div class="dtwrap"><table class="dt" id="relTable">
+        <tr><th>Datum <i>x</i></th><td>5</td><td>8</td><td>14</td><th>Total</th></tr>
+        <tr><th id="relHead">Frequency <i>f</i></th><td data-f="2">2</td><td data-f="3">3</td><td data-f="1">1</td><td id="relTot">6</td></tr>
+      </table></div>
+      <div class="row"><button class="btn primary" id="relBtn">Divide each frequency by the total</button></div>
+      <p class="caption" id="relOut">Mean = (5 × 2 + 8 × 3 + 14 × 1) ÷ 6 = 48 ÷ 6 = 8. Variance = [(5 − 8)² × 2 + 0 × 3 + (14 − 8)² × 1] ÷ 6 = 54 ÷ 6 = 9, so σ = 3.</p>
+    </div>
+    <div class="tip"><span class="lbl">Why this matters</span><p>Once each frequency is divided by the total, the mean becomes Σ <i>x</i> × (relative frequency). In this chapter the relative frequency is replaced by a <strong>probability</strong>, and the same formula gives the expectation E(<i>X</i>). Keep this picture in mind.</p></div>
+  </div>
+</section>
+
+<!-- ===================== RANDOM VARIABLE ===================== -->
+<section class="view" id="v-rv" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 3 · 9.1A</p>
+    <h1>Random variables</h1>
+    <div class="chips"><span class="tb">Textbook: Example 9.1, 9.2</span><span class="tb">Classwork 9.1, 9.2</span></div>
+  </div>
+  <p>A bag contains 1 purple ball and 1 white ball. Two balls are drawn one by one <strong>with replacement</strong>. Let <i>X</i> be the number of purple balls drawn. Every outcome of the experiment gives one number for <i>X</i>.</p>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Animation</span><h3>Draw, then follow the arrow</h3></div>
+    <div class="svgwrap"><svg id="bagSvg" viewBox="0 0 640 220" role="img" aria-label="Bag with one purple and one white ball and two draw slots">
+      <path class="bag" d="M70 72 Q58 42 92 52 L158 52 Q192 42 180 72 Q222 196 125 202 Q28 196 70 72 Z"/>
+      <path d="M92 52 Q125 34 158 52" fill="none" stroke="var(--ink-3)" stroke-width="2" style="stroke:var(--ink-3)"/>
+      <circle class="ballP" cx="104" cy="150" r="17"/>
+      <circle class="ballW" cx="148" cy="156" r="17"/>
+      <text class="lbl" x="125" y="216" text-anchor="middle">1 purple, 1 white</text>
+      <circle class="slot" cx="290" cy="120" r="23"/>
+      <circle class="slot" cx="370" cy="120" r="23"/>
+      <text class="lbl" x="290" y="164" text-anchor="middle">1st draw</text>
+      <text class="lbl" x="370" y="164" text-anchor="middle">2nd draw</text>
+      <g id="flyLayer"></g>
+      <text class="lbl" x="455" y="96">Outcome</text>
+      <text id="outTxt" x="455" y="128" style="font-family:var(--font-mono);font-size:22px;font-weight:600">—</text>
+      <text id="xTxt" x="455" y="166" style="font-size:20px;font-weight:700;fill:var(--violet)"></text>
+    </svg></div>
+    <div class="svgwrap"><svg id="mapSvg" viewBox="0 0 640 215" role="img" aria-label="Each sample point is mapped by X to a value 0, 1 or 2">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker>
+        <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="ah2" d="M0 0L10 5L0 10z"/></marker>
+      </defs>
+      <ellipse class="ell" cx="190" cy="100" rx="120" ry="88"/>
+      <ellipse class="ell" cx="500" cy="100" rx="52" ry="88"/>
+      <g id="mapInner"></g>
+      <text class="lbl" x="190" y="208" text-anchor="middle">Sample space S</text>
+      <text class="lbl" x="345" y="208" text-anchor="middle" style="fill:var(--violet);font-weight:600">X (a rule)</text>
+      <text class="lbl" x="500" y="208" text-anchor="middle">Values of X</text>
+    </svg></div>
+    <div class="row">
+      <button class="btn primary" id="drawOne">Draw two balls</button>
+      <button class="btn" id="drawMany">Repeat 200 times</button>
+      <button class="btn" id="drawReset">Reset</button>
+    </div>
+    <div class="tally" id="tally"></div>
+    <p class="caption small">Purple bars: relative frequency from your draws. Amber marks: the theoretical probabilities ¼, ½, ¼. The more you draw, the closer they get.</p>
+  </div>
+
+  <div class="defn">
+    <span class="lbl">Definition</span>
+    <p>A <span class="term">random variable</span><span class="zh">隨機變量</span> is a rule that gives a <strong>number</strong> to every sample point of an experiment. We name it with a capital letter such as <i>X</i>, and write its values with the small letter <i>x</i>.</p>
+    <p>A <span class="term">discrete random variable</span><span class="zh">離散隨機變量</span> takes values that can be listed one by one: a finite list (0, 1, 2) or an endless list (1, 2, 3, …).</p>
+  </div>
+  <div class="grid2">
+    <div class="tip"><span class="lbl">Notice</span><ul><li>Each sample point gives <strong>exactly one</strong> value of <i>X</i>.</li><li>One value can come from <strong>several</strong> sample points: WP and PW both give <i>X</i> = 1.</li><li>So "<i>X</i> = 1" is an event, and P(<i>X</i> = 1) makes sense.</li></ul></div>
+    <div class="tip"><span class="lbl">Watch the wording</span><ul><li>"With replacement": the bag is the same for every draw.</li><li>"Without replacement": the bag changes after each draw, so probabilities change too.</li><li>Values can be negative, e.g. a net gain of −$5.</li></ul></div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Try it</span><h3>Discrete or not? If discrete, can you list all the values?</h3></div>
+    <div class="items" id="sorter"></div>
+  </div>
+</section>
+
+<!-- ===================== DISTRIBUTION ===================== -->
+<section class="view" id="v-dist" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 4 · 9.1B</p>
+    <h1>Probability distributions</h1>
+    <div class="chips"><span class="tb">Textbook: Example 9.3, 9.4</span><span class="tb">Classwork 9.3, 9.4</span></div>
+  </div>
+  <p>An unbiased coin is tossed three times. Let <i>X</i> be the number of heads. To get the probability of each value of <i>X</i>, list the sample points, apply <i>X</i> to each, then group.</p>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Animation</span><h3>From tree diagram to distribution</h3></div>
+    <div class="svgwrap"><svg id="treeSvg" viewBox="0 0 545 330" role="img" aria-label="Tree diagram for three coin tosses"></svg></div>
+    <p class="caption" id="treeCap"></p>
+    <div class="row">
+      <button class="btn primary" id="treeNext">Next step</button>
+      <button class="btn" id="treePlay">Play all</button>
+      <button class="btn" id="treeReset">Reset</button>
+    </div>
+    <div class="grid2 reveal" id="coinDist" data-s="5">
+      <div class="dtwrap" style="align-self:center"><table class="dt">
+        <tr><th><i>x</i></th><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+        <tr><th>P(<i>X</i> = <i>x</i>)</th><td>⅛</td><td>⅜</td><td>⅜</td><td>⅛</td></tr>
+      </table>
+      <p class="small muted" style="text-align:center">Check: ⅛ + ⅜ + ⅜ + ⅛ = 1</p></div>
+      <div class="svgwrap"><svg id="coinBars" viewBox="0 0 300 185" role="img" aria-label="Bar chart of the distribution">
+        <rect class="grow x0" data-s="5" x="38" y="122.5" width="24" height="37.5"/>
+        <rect class="grow x1" data-s="5" x="108" y="55" width="24" height="105"/>
+        <rect class="grow x2" data-s="5" x="178" y="55" width="24" height="105"/>
+        <rect class="grow x3" data-s="5" x="248" y="122.5" width="24" height="37.5"/>
+        <line class="axis" x1="20" x2="290" y1="160" y2="160"/>
+        <text class="lbl" x="50" y="177" text-anchor="middle">0</text><text class="lbl" x="120" y="177" text-anchor="middle">1</text><text class="lbl" x="190" y="177" text-anchor="middle">2</text><text class="lbl" x="260" y="177" text-anchor="middle">3</text>
+        <text class="lbl-s" x="50" y="115" text-anchor="middle">1/8</text><text class="lbl-s" x="120" y="47" text-anchor="middle">3/8</text><text class="lbl-s" x="190" y="47" text-anchor="middle">3/8</text><text class="lbl-s" x="260" y="115" text-anchor="middle">1/8</text>
+      </svg></div>
+    </div>
+  </div>
+
+  <div class="defn">
+    <span class="lbl">Definition</span>
+    <p>\(P(X=x)\) is the <span class="term">probability function</span><span class="zh">概率函數</span> of \(X\). It gives a probability to each possible value of \(X\) and must satisfy</p>
+    \[\text{(a)}\;\; 0\le P(X=x)\le 1 \text{ for every possible } x,\qquad \text{(b)}\;\; \sum P(X=x)=1.\]
+    <p>The list of all possible values together with their probabilities is the <span class="term">discrete probability distribution</span><span class="zh">離散概率分佈</span> of \(X\).</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Try it</span><h3>Is each table a probability distribution?</h3></div>
+    <p class="small muted">Check both conditions every time. One failure is enough to say no.</p>
+    <div class="items" id="checker"></div>
+  </div>
+
+  <div class="lab stepper" data-stepper>
+    <div class="lab-h"><span class="tag amber">Worked example</span><h3>Finding an unknown</h3></div>
+    <div class="q">
+      <p>The table shows the probability distribution of \(X\). Find the value of \(k\).</p>
+      <div class="dtwrap"><table class="dt"><tr><th><i>x</i></th><td>1</td><td>2</td><td>3</td><td>4</td></tr><tr><th>P(<i>X</i> = <i>x</i>)</th><td>0.2</td><td>\(k^2\)</td><td>\(0.5k\)</td><td>0.3</td></tr></table></div>
+      <p class="small muted">Try it on paper first, then reveal one step at a time.</p>
+    </div>
+    <ol class="steps">
+      <li class="step"><div><p>The probabilities must add up to 1.</p>\[0.2+k^2+0.5k+0.3=1\]</div></li>
+      <li class="step"><div>\[k^2+0.5k-0.5=0\quad\Longrightarrow\quad (k-0.5)(k+1)=0\]\[k=0.5\ \text{ or }\ k=-1\]</div></li>
+      <li class="step"><div><p>Test each root against \(0\le P(X=x)\le 1\). When \(k=-1\), \(P(X=3)=0.5(-1)=-0.5<0\), which is impossible. <strong>Reject</strong> \(k=-1\).</p></div></li>
+      <li class="step"><div><p>\(k=0.5\). Check: \(0.2+0.25+0.25+0.3=1\) ✓</p></div></li>
+    </ol>
+    <div class="row"><button class="btn primary" data-act="next">Show next step</button><button class="btn" data-act="all">Show all</button><button class="btn" data-act="reset">Hide steps</button></div>
+  </div>
+  <div class="tip"><span class="lbl">DSE habit</span><p>Whenever a quadratic gives two roots, write the rejected one with a reason, e.g. "(rejected since P(X = 3) &lt; 0)". Marks are often given for this line.</p></div>
+</section>
+
+<!-- ===================== REPRESENTATIONS ===================== -->
+<section class="view" id="v-rep" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 5 · 9.1C</p>
+    <h1>Three ways to show a distribution</h1>
+    <div class="chips"><span class="tb">Textbook: Example 9.5, 9.6, 9.7</span><span class="tb">Classwork 9.5 – 9.7</span></div>
+  </div>
+  <p>A distribution can be shown as a <strong>table</strong>, a <strong>graph</strong> (a <span class="term">bar chart</span><span class="zh">棒形圖</span>) or a <strong>formula</strong>. They carry the same information.</p>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Try it</span><h3>A special fair dice: faces 1, 2, 2, 3, 3, 3</h3></div>
+    <div class="faces" aria-label="The six faces"><span class="face f1">1</span><span class="face f2">2</span><span class="face f2">2</span><span class="face f3">3</span><span class="face f3">3</span><span class="face f3">3</span></div>
+    <p class="small">Let <i>X</i> be the number shown when the dice is tossed once. Switch between the three forms.</p>
+    <div class="row" id="repTabs">
+      <button class="btn" data-tab="0" aria-pressed="true">Table</button>
+      <button class="btn" data-tab="1" aria-pressed="false">Bar chart</button>
+      <button class="btn" data-tab="2" aria-pressed="false">Formula</button>
+    </div>
+    <div class="stack" id="repStack">
+      <div class="on" style="align-self:center">
+        <div class="dtwrap"><table class="dt"><tr><th><i>x</i></th><td>1</td><td>2</td><td>3</td></tr><tr><th>P(<i>X</i> = <i>x</i>)</th><td>1/6</td><td>2/6 = 1/3</td><td>3/6 = 1/2</td></tr></table></div>
+        <p class="small muted" style="text-align:center">P(<i>X</i> = 2) = 2/6 because 2 of the 6 equally likely faces show 2.</p>
+      </div>
+      <div class="svgwrap"><svg id="diceBars" viewBox="0 0 330 200" role="img" aria-label="Bar chart for the special dice">
+        <line class="gridl" x1="50" x2="310" y1="130" y2="130"/><line class="gridl" x1="50" x2="310" y1="90" y2="90"/><line class="gridl" x1="50" x2="310" y1="50" y2="50"/>
+        <text class="lbl-s" x="44" y="134" text-anchor="end">1/6</text><text class="lbl-s" x="44" y="94" text-anchor="end">1/3</text><text class="lbl-s" x="44" y="54" text-anchor="end">1/2</text>
+        <rect class="grow x0" x="104" y="130" width="12" height="40"/>
+        <rect class="grow x1" x="174" y="90" width="12" height="80"/>
+        <rect class="grow x2" x="244" y="50" width="12" height="120"/>
+        <line class="axis" x1="50" x2="310" y1="170" y2="170"/><line class="axis" x1="50" x2="50" y1="20" y2="170"/>
+        <text class="lbl" x="110" y="188" text-anchor="middle">1</text><text class="lbl" x="180" y="188" text-anchor="middle">2</text><text class="lbl" x="250" y="188" text-anchor="middle">3</text>
+        <text class="lbl" x="318" y="174">x</text><text class="lbl" x="56" y="18">Probability</text>
+      </svg></div>
+      <div style="align-self:center">
+        <p>Look for a pattern: P(<i>X</i> = 1) = 1/6, P(<i>X</i> = 2) = 2/6, P(<i>X</i> = 3) = 3/6. The numerator equals <i>x</i>.</p>
+        \[P(X=x)=\frac{x}{6}\quad\text{for } x=1,\,2,\,3\]
+        <p class="small muted">Always state the possible values of <i>x</i> after a formula.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Explore</span><h3>When is a formula a valid probability function?</h3></div>
+    <p>\(P(X=x)=cx\) for \(x=1,2,3,4\). Move the slider and watch the total.</p>
+    <div class="slider"><label for="cSlider">c</label><input type="range" id="cSlider" min="0.02" max="0.2" step="0.01" value="0.05"><output id="cOut">0.05</output></div>
+    <div class="svgwrap"><svg id="cBars" viewBox="0 0 420 190" role="img" aria-label="Bars for P(X=x)=cx"></svg></div>
+    <span class="status mid" id="cStatus"></span>
+  </div>
+
+  <div class="lab stepper" data-stepper>
+    <div class="lab-h"><span class="tag amber">Worked example</span><h3>A distribution from counting</h3></div>
+    <div class="q"><p>3 pens are taken at random from a box of 5 red pens and 3 blue pens. Let \(X\) be the number of red pens taken. Represent the distribution of \(X\) by (i) a formula and (ii) a table.</p></div>
+    <ol class="steps">
+      <li class="step"><div><p>Possible values of \(X\): 0, 1, 2, 3.</p></div></li>
+      <li class="step"><div><p>Number of ways to choose any 3 of the 8 pens:</p>\[C^8_3=56\]</div></li>
+      <li class="step"><div><p>To get \(x\) red pens, choose \(x\) of the 5 red and \(3-x\) of the 3 blue:</p>\[C^5_x\,C^3_{3-x}\ \text{ ways}\]</div></li>
+      <li class="step"><div><p>(i) Formula:</p>\[P(X=x)=\frac{C^5_x\,C^3_{3-x}}{56}\quad\text{for } x=0,1,2,3\]</div></li>
+      <li class="step"><div><p>(ii) Substitute each value:</p>
+        <div class="dtwrap"><table class="dt"><tr><th><i>x</i></th><td>0</td><td>1</td><td>2</td><td>3</td></tr><tr><th>P(<i>X</i> = <i>x</i>)</th><td>1/56</td><td>15/56</td><td>15/28</td><td>5/28</td></tr></table></div>
+        <p class="small muted">Check: 1 + 15 + 30 + 10 = 56, so the probabilities add to 1 ✓</p></div></li>
+    </ol>
+    <div class="row"><button class="btn primary" data-act="next">Show next step</button><button class="btn" data-act="all">Show all</button><button class="btn" data-act="reset">Hide steps</button></div>
+  </div>
+</section>
+
+<!-- ===================== EXPECTATION ===================== -->
+<section class="view" id="v-exp" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 6 · 9.2A</p>
+    <h1>Expectation E(<i>X</i>)</h1>
+    <div class="chips"><span class="tb">Textbook: Class Activity 9.1</span><span class="tb">Example 9.8, 9.9, 9.10</span></div>
+  </div>
+  <p>A lucky draw gives a prize of $10 with probability 0.5, $50 with probability 0.3 and $200 with probability 0.2. What do you win <strong>on average</strong> if you play many, many times?</p>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Simulation</span><h3>Long-run average prize</h3></div>
+    <div class="row">
+      <button class="btn primary" data-sim="1">Play once</button>
+      <button class="btn" data-sim="10">×10</button>
+      <button class="btn" data-sim="100">×100</button>
+      <button class="btn" data-sim="1000">×1000</button>
+      <button class="btn" id="simReset">Reset</button>
+      <span class="lastwin" id="lastWin"></span>
+    </div>
+    <canvas id="simCanvas" aria-label="Running average prize against number of plays"></canvas>
+    <div class="stats">
+      <div class="stat"><div class="k">Plays</div><div class="v" id="sN">0</div></div>
+      <div class="stat"><div class="k">Average prize</div><div class="v" id="sAvg">—</div></div>
+      <div class="stat"><div class="k">E(X)</div><div class="v" style="color:var(--amber)">$60</div></div>
+    </div>
+    <div class="dtwrap"><table class="dt" id="simTable">
+      <tr><th>Prize <i>x</i></th><td>$10</td><td>$50</td><td>$200</td></tr>
+      <tr><th>Times won</th><td>0</td><td>0</td><td>0</td></tr>
+      <tr><th>Relative frequency</th><td>—</td><td>—</td><td>—</td></tr>
+      <tr><th>P(<i>X</i> = <i>x</i>)</th><td>0.5</td><td>0.3</td><td>0.2</td></tr>
+    </table></div>
+    <p class="caption">As the number of plays grows, the relative frequencies approach the probabilities, so the average approaches 10(0.5) + 50(0.3) + 200(0.2) = <strong>60</strong>.</p>
+  </div>
+
+  <div class="defn">
+    <span class="lbl">Definition</span>
+    <p>The <span class="term">expectation</span> (or <span class="term">expected value</span>)<span class="zh">期望值</span> of a discrete random variable \(X\), written \(\mu\) or \(E(X)\), is</p>
+    \[\mu=E(X)=x_1p_1+x_2p_2+\cdots+x_np_n=\sum xP(X=x)\]
+    <p>It is a weighted mean of the values of \(X\), with the probabilities as weights. It is the <strong>long-run average</strong>, so it need not be a value that \(X\) can actually take.</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Explore</span><h3>E(<i>X</i>) is the balance point</h3></div>
+    <p class="small">Think of each probability as a weight placed at <i>x</i>. Add or remove weight; the triangle moves to where the bars balance.</p>
+    <div class="row" id="balPresets">
+      <button class="btn" data-w="1,2,4,2,1">Symmetric</button>
+      <button class="btn" data-w="5,3,1,1,0">Weight on small values</button>
+      <button class="btn" data-w="0,1,1,3,5">Weight on large values</button>
+      <button class="btn" data-w="4,0,0,0,4">Two ends</button>
+    </div>
+    <div class="svgwrap"><svg id="balSvg" viewBox="0 0 520 250" role="img" aria-label="Weights on a beam with fulcrum at E(X)"></svg></div>
+    <div class="wbtns" id="balBtns"></div>
+    <p class="caption" id="balOut"></p>
+  </div>
+
+  <div class="block">
+    <h2>Expectation of a function of <i>X</i></h2>
+    <p>If \(g(X)\) is a function of \(X\), weight each value \(g(x)\) by \(P(X=x)\):</p>
+    <div class="defn">\[E[g(X)]=\sum g(x)P(X=x),\qquad\text{e.g. } E(X^2)=\sum x^2P(X=x)\]</div>
+    <div class="lab">
+      <div class="lab-h"><span class="tag">Example</span><h3>X takes 1, 2, 3 with probabilities 0.2, 0.5, 0.3</h3></div>
+      <div class="dtwrap"><table class="dt">
+        <tr><th><i>x</i></th><td>1</td><td>2</td><td>3</td><th>Sum</th></tr>
+        <tr><th>P(<i>X</i> = <i>x</i>)</th><td>0.2</td><td>0.5</td><td>0.3</td><td>1</td></tr>
+        <tr><th><i>x</i>P(<i>X</i> = <i>x</i>)</th><td>0.2</td><td>1</td><td>0.9</td><td><strong>E(<i>X</i>) = 2.1</strong></td></tr>
+        <tr><th><i>x</i>²P(<i>X</i> = <i>x</i>)</th><td>0.2</td><td>2</td><td>2.7</td><td><strong>E(<i>X</i>²) = 4.9</strong></td></tr>
+      </table></div>
+      <p class="small">Notice E(<i>X</i>²) = 4.9 but [E(<i>X</i>)]² = 2.1² = 4.41. They are <strong>not</strong> equal. The gap between them turns out to be the variance (next section).</p>
+    </div>
+    <div class="tip"><span class="lbl">Fair game</span><p>If $<i>G</i> is a player's net gain in one game, the game is <span class="term">fair</span><span class="zh">公平遊戲</span> when E(<i>G</i>) = 0. If E(<i>G</i>) &lt; 0, the player loses money in the long run.</p></div>
+  </div>
+</section>
+
+<!-- ===================== VARIANCE ===================== -->
+<section class="view" id="v-var" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 7 · 9.2B</p>
+    <h1>Variance Var(<i>X</i>)</h1>
+    <div class="chips"><span class="tb">Textbook: Example 9.11, 9.12</span><span class="tb">Classwork 9.11, 9.12</span></div>
+  </div>
+  <p>Expectation tells you the centre. Variance tells you how widely the values spread around that centre.</p>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Compare</span><h3>Same mean, different spread</h3></div>
+    <div class="row" id="vcBtns"><button class="btn" data-d="A" aria-pressed="true">Distribution A</button><button class="btn" data-d="B" aria-pressed="false">Distribution B</button></div>
+    <div class="svgwrap"><svg id="vcSvg" viewBox="0 0 520 252" role="img" aria-label="Distribution with mean line and squared deviations"></svg></div>
+    <p class="small"><strong>Contributions to the variance</strong>, (<i>x</i> − μ)² × P(<i>X</i> = <i>x</i>), stacked:</p>
+    <div class="contrib" id="vcContrib"></div>
+    <p class="caption" id="vcOut"></p>
+  </div>
+
+  <div class="defn">
+    <span class="lbl">Definition</span>
+    <p>The <span class="term">variance</span><span class="zh">方差</span> of \(X\) is the expected squared distance from the mean:</p>
+    \[\sigma^2=\operatorname{Var}(X)=E[(X-\mu)^2]=\sum (x-\mu)^2P(X=x)\]
+    <p>A more convenient formula:</p>
+    \[\operatorname{Var}(X)=E(X^2)-[E(X)]^2,\quad\text{where } E(X^2)=\sum x^2P(X=x)\]
+    <p>The <span class="term">standard deviation</span><span class="zh">標準差</span> is \(\sigma=\sqrt{\operatorname{Var}(X)}\). It has the same unit as \(X\).</p>
+  </div>
+  <details>
+    <summary>Why are the two formulas the same?</summary>
+    \[\begin{aligned}\operatorname{Var}(X)&=\sum (x^2-2\mu x+\mu^2)P(X=x)\\&=\sum x^2P(X=x)-2\mu\sum xP(X=x)+\mu^2\sum P(X=x)\\&=E(X^2)-2\mu\cdot\mu+\mu^2\cdot 1\\&=E(X^2)-\mu^2\end{aligned}\]
+  </details>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Step through</span><h3>Building the working table</h3></div>
+    <p class="small"><i>X</i> takes 0, 1, 2, 3 with probabilities 0.1, 0.2, 0.3, 0.4. Find E(<i>X</i>) and Var(<i>X</i>).</p>
+    <div class="row" id="vtMethod"><button class="btn" data-m="short" aria-pressed="true">Shortcut: E(X²) − [E(X)]²</button><button class="btn" data-m="def" aria-pressed="false">Definition: Σ(x − μ)²P</button></div>
+    <div class="dtwrap"><table class="dt vt" id="vtTable"></table></div>
+    <div class="vres" id="vtRes"></div>
+    <p class="caption" id="vtCap"></p>
+    <div class="row"><button class="btn primary" id="vtNext">Next step</button><button class="btn" id="vtReset">Restart</button></div>
+  </div>
+
+  <div class="warn"><span class="lbl">Common mistakes</span><ul>
+    <li>Writing E(<i>X</i>²) = [E(<i>X</i>)]². They are different numbers.</li>
+    <li>Forgetting to square E(<i>X</i>) in Var(<i>X</i>) = E(<i>X</i>²) − [E(<i>X</i>)]².</li>
+    <li>Giving σ when asked for Var(<i>X</i>), or the other way round.</li>
+    <li>A negative variance means an arithmetic slip somewhere. Variance is never negative.</li>
+  </ul></div>
+</section>
+
+<!-- ===================== PROPERTIES ===================== -->
+<section class="view" id="v-prop" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 8 · 9.2C</p>
+    <h1>E(<i>aX</i> + <i>b</i>) and Var(<i>aX</i> + <i>b</i>)</h1>
+    <div class="chips"><span class="tb">Textbook: Class Activity 9.2</span><span class="tb">Example 9.13, 9.14, 9.15</span></div>
+  </div>
+  <p>A cash coupon is drawn at random from five coupons worth $2, $4, $4, $5 and $10. Let $<i>X</i> be its value, so E(<i>X</i>) = 5 and Var(<i>X</i>) = 7.2. What happens if the shop changes every coupon to $(<i>aX</i> + <i>b</i>)?</p>
+
+  <div class="lab">
+    <div class="lab-h"><span class="tag">Lab</span><h3>Transform the coupons: Y = aX + b</h3></div>
+    <div class="row" id="tfPresets">
+      <button class="btn" data-a="1" data-b="3">Add $3: X + 3</button>
+      <button class="btn" data-a="2" data-b="0">Double: 2X</button>
+      <button class="btn" data-a="2" data-b="-1">2X − 1</button>
+      <button class="btn" data-a="-1" data-b="0">−X</button>
+      <button class="btn" data-a="1" data-b="0">Back to X</button>
+    </div>
+    <div class="slider"><label for="aSl">a</label><input type="range" id="aSl" min="-3" max="3" step="0.5" value="1"><output id="aOut">1</output></div>
+    <div class="slider"><label for="bSl">b</label><input type="range" id="bSl" min="-10" max="10" step="1" value="0"><output id="bOut">0</output></div>
+    <div class="svgwrap"><svg id="tfSvg" viewBox="0 0 640 235" role="img" aria-label="Distribution of X (dashed) and Y (filled) on a number line"></svg></div>
+    <div class="legend"><span><span class="sw" style="border:1.5px dashed var(--ink-3)"></span>X (original)</span><span><span class="sw" style="background:var(--violet)"></span>Y = aX + b</span><span><span class="sw" style="background:var(--amber)"></span>E(Y) and the band E(Y) ± σ</span></div>
+    <div class="dtwrap"><table class="dt" id="tfTable"></table></div>
+    <div class="readout">
+      <div class="ro"><span class="k">Expectation</span><span class="eq" id="roE1"></span><span class="eq" id="roE2"></span><span class="match" id="roE3"></span></div>
+      <div class="ro"><span class="k">Variance</span><span class="eq" id="roV1"></span><span class="eq" id="roV2"></span><span class="match" id="roV3"></span></div>
+    </div>
+  </div>
+
+  <div class="defn">
+    <span class="lbl">Property</span>
+    <p>For a discrete random variable \(X\) and constants \(a\), \(b\):</p>
+    \[E(aX+b)=aE(X)+b\qquad\qquad \operatorname{Var}(aX+b)=a^2\operatorname{Var}(X)\]
+    <p>So the standard deviation of \(aX+b\) is \(|a|\sigma\).</p>
+  </div>
+  <div class="grid2">
+    <div class="tip"><span class="lbl">Why b disappears from Var</span><p>Adding <i>b</i> slides every bar, and the mean, by the same amount. Distances from the mean do not change, so the spread does not change.</p></div>
+    <div class="tip"><span class="lbl">Why a becomes a²</span><p>Multiplying by <i>a</i> stretches every distance from the mean by |<i>a</i>|. Variance uses <em>squared</em> distances, so it is multiplied by <i>a</i>². This is also why Var(−<i>X</i>) = Var(<i>X</i>).</p></div>
+  </div>
+  <details>
+    <summary>A two-line proof</summary>
+    <p>Let \(Y=aX+b\). Then \(E(Y)=\sum(ax+b)P(X=x)=a\sum xP(X=x)+b\sum P(X=x)=a\mu+b\).</p>
+    <p>Each deviation is \(y-E(Y)=(ax+b)-(a\mu+b)=a(x-\mu)\), so \(\operatorname{Var}(Y)=\sum a^2(x-\mu)^2P(X=x)=a^2\operatorname{Var}(X)\).</p>
+  </details>
+  <div class="warn"><span class="lbl">Common mistakes</span><ul>
+    <li>Var(2<i>X</i> + 3) = 2Var(<i>X</i>) + 3 ✗ &nbsp;→&nbsp; correct: 4Var(<i>X</i>)</li>
+    <li>Var(3 − 2<i>X</i>) = −2²Var(<i>X</i>) ✗ &nbsp;→&nbsp; correct: (−2)²Var(<i>X</i>) = 4Var(<i>X</i>)</li>
+  </ul></div>
+</section>
+
+<!-- ===================== SKILLS ===================== -->
+<section class="view" id="v-skills" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 9 · Exam skills</p>
+    <h1>DSE question skills</h1>
+    <p class="lead">Four question types that come up again and again. Try each on paper, then reveal the solution one step at a time to compare.</p>
+  </div>
+
+  <div class="lab stepper" data-stepper>
+    <span class="skill-tag">Skill A · two unknowns from ΣP = 1 and E(X)</span>
+    <div class="q"><p>The probability distribution of \(X\) is shown, where \(a\) and \(b\) are constants. It is given that \(E(X)=1.5\). Find \(a\), \(b\) and \(\operatorname{Var}(X)\).</p>
+      <div class="dtwrap"><table class="dt"><tr><th><i>x</i></th><td>0</td><td>1</td><td>2</td><td>3</td></tr><tr><th>P(<i>X</i> = <i>x</i>)</th><td>\(a\)</td><td>0.3</td><td>\(b\)</td><td>0.2</td></tr></table></div></div>
+    <ol class="steps">
+      <li class="step"><div><p>Sum of probabilities: \(a+0.3+b+0.2=1\), so \(a+b=0.5\ \cdots\ (1)\)</p></div></li>
+      <li class="step"><div><p>Use the expectation:</p>\[0(a)+1(0.3)+2b+3(0.2)=1.5\ \Longrightarrow\ 2b=0.6\ \Longrightarrow\ b=0.3\]</div></li>
+      <li class="step"><div><p>From (1): \(a=0.2\)</p></div></li>
+      <li class="step"><div>\[E(X^2)=0^2(0.2)+1^2(0.3)+2^2(0.3)+3^2(0.2)=3.3\]\[\operatorname{Var}(X)=3.3-1.5^2=1.05\]</div></li>
+    </ol>
+    <div class="row"><button class="btn primary" data-act="next">Show next step</button><button class="btn" data-act="all">Show all</button><button class="btn" data-act="reset">Hide steps</button></div>
+  </div>
+
+  <div class="lab stepper" data-stepper>
+    <span class="skill-tag">Skill B · decisions using expected profit</span>
+    <div class="q"><p>A bakery makes a special cake each morning at a cost of $120 each and sells it for $300. Unsold cakes are thrown away at closing time. The daily demand \(D\) has this distribution:</p>
+      <div class="dtwrap"><table class="dt"><tr><th><i>d</i></th><td>1</td><td>2</td><td>3</td></tr><tr><th>P(<i>D</i> = <i>d</i>)</th><td>0.2</td><td>0.5</td><td>0.3</td></tr></table></div>
+      <p>(a) Find the expected daily profit if 2 cakes are made. (b) Should the bakery make 1, 2 or 3 cakes each day?</p></div>
+    <ol class="steps">
+      <li class="step"><div><p>Key idea: the number sold is the smaller of the demand and the number made. Cost is paid on every cake made.</p></div></li>
+      <li class="step"><div><p>(a) Make 2: cost \(=2\times120=\$240\).<br>If \(D=1\): profit \(=300-240=\$60\). If \(D\ge2\): profit \(=600-240=\$360\), with \(P(D\ge2)=0.8\).</p></div></li>
+      <li class="step"><div>\[\text{Expected profit}=60(0.2)+360(0.8)=\$300\]</div></li>
+      <li class="step"><div><p>(b) Make 1: every day 1 cake is sold, profit \(=300-120=\$180\).</p></div></li>
+      <li class="step"><div><p>Make 3: cost \(\$360\). Profits are \(-60,\ 240,\ 540\) for \(D=1,2,3\).</p>\[\text{Expected profit}=-60(0.2)+240(0.5)+540(0.3)=\$270\]</div></li>
+      <li class="step"><div><p>Compare \(\$180,\ \$300,\ \$270\). The bakery should make <strong>2 cakes</strong> each day.</p></div></li>
+    </ol>
+    <div class="row"><button class="btn primary" data-act="next">Show next step</button><button class="btn" data-act="all">Show all</button><button class="btn" data-act="reset">Hide steps</button></div>
+  </div>
+
+  <div class="lab stepper" data-stepper>
+    <span class="skill-tag">Skill C · unknowns in Y = aX + b</span>
+    <div class="q"><p>\(X\) is a random variable with \(E(X)=4\) and \(\operatorname{Var}(X)=2.25\). Let \(Y=aX+b\), where \(a\) and \(b\) are constants. If \(E(Y)=10\) and \(\operatorname{Var}(Y)=9\), find \(a\) and \(b\).</p></div>
+    <ol class="steps">
+      <li class="step"><div>\[\operatorname{Var}(Y)=a^2\operatorname{Var}(X)\ \Longrightarrow\ 9=2.25a^2\ \Longrightarrow\ a^2=4\ \Longrightarrow\ a=2\ \text{ or }\ -2\]</div></li>
+      <li class="step"><div>\[E(Y)=aE(X)+b\ \Longrightarrow\ 10=4a+b\]</div></li>
+      <li class="step"><div><p>If \(a=2\): \(b=10-8=2\). If \(a=-2\): \(b=10+8=18\).</p></div></li>
+      <li class="step"><div><p>\(a=2,\ b=2\) or \(a=-2,\ b=18\). Keep both unless the question says \(a&gt;0\).</p></div></li>
+    </ol>
+    <div class="row"><button class="btn primary" data-act="next">Show next step</button><button class="btn" data-act="all">Show all</button><button class="btn" data-act="reset">Hide steps</button></div>
+  </div>
+
+  <div class="lab stepper" data-stepper>
+    <span class="skill-tag">Skill D · is the game fair?</span>
+    <div class="q"><p>A player pays $12 to spin a wheel once. The prize is $0 with probability \(\frac12\), $10 with probability \(\frac13\) and $40 with probability \(\frac16\). Let $\(W\) be the prize and $\(G\) the net gain.</p><p>(a) Find \(E(G)\). Is the game fair? (b) What fee would make the game fair?</p></div>
+    <ol class="steps">
+      <li class="step"><div>\[E(W)=0\left(\tfrac12\right)+10\left(\tfrac13\right)+40\left(\tfrac16\right)=\tfrac{10}{3}+\tfrac{20}{3}=10\]</div></li>
+      <li class="step"><div><p>\(G=W-12\), so by the property of expectation:</p>\[E(G)=E(W)-12=-2\]</div></li>
+      <li class="step"><div><p>\(E(G)\ne0\), so the game is <strong>not fair</strong>. In the long run the player loses $2 per game.</p></div></li>
+      <li class="step"><div><p>(b) For a fee of $\(k\): \(E(W-k)=10-k=0\), so the fee should be <strong>$10</strong>.</p></div></li>
+    </ol>
+    <div class="row"><button class="btn primary" data-act="next">Show next step</button><button class="btn" data-act="all">Show all</button><button class="btn" data-act="reset">Hide steps</button></div>
+  </div>
+</section>
+
+<!-- ===================== QUIZ ===================== -->
+<section class="view" id="v-quiz" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 10 · Check yourself</p>
+    <h1>Pre-lesson check</h1>
+    <p class="lead">Eleven quick questions. Numerical answers may be typed as decimals or fractions (e.g. 0.1 or 1/10).</p>
+  </div>
+  <div class="row"><span class="score" id="qScore">0 / 11</span><button class="btn" id="qReset">Clear answers</button></div>
+  <div class="block" id="quiz"></div>
+</section>
+
+<!-- ===================== SUMMARY ===================== -->
+<section class="view" id="v-summary" hidden>
+  <div class="head">
+    <p class="eyebrow">Section 11 · Summary</p>
+    <h1>Summary and notes</h1>
+  </div>
+  <div class="fcards">
+    <div class="fcard"><h3>Probability function</h3>\[0\le P(X=x)\le1,\qquad \sum P(X=x)=1\]</div>
+    <div class="fcard"><h3>Expectation</h3>\[\mu=E(X)=\sum xP(X=x)\]\[E[g(X)]=\sum g(x)P(X=x)\]</div>
+    <div class="fcard"><h3>Variance and SD</h3>\[\operatorname{Var}(X)=\sum(x-\mu)^2P(X=x)\]\[=E(X^2)-[E(X)]^2,\quad \sigma=\sqrt{\operatorname{Var}(X)}\]</div>
+    <div class="fcard"><h3>Linear change</h3>\[E(aX+b)=aE(X)+b\]\[\operatorname{Var}(aX+b)=a^2\operatorname{Var}(X)\]</div>
+  </div>
+  <div class="block">
+    <h2>Glossary 詞彙</h2>
+    <div class="dtwrap"><table class="dt gloss">
+      <tr><th>English</th><th>中文</th></tr>
+      <tr><td>sample space</td><td>樣本空間</td></tr>
+      <tr><td>event</td><td>事件</td></tr>
+      <tr><td>random variable</td><td>隨機變量</td></tr>
+      <tr><td>discrete random variable</td><td>離散隨機變量</td></tr>
+      <tr><td>probability function</td><td>概率函數</td></tr>
+      <tr><td>discrete probability distribution</td><td>離散概率分佈</td></tr>
+      <tr><td>bar chart</td><td>棒形圖</td></tr>
+      <tr><td>expectation / expected value</td><td>期望值</td></tr>
+      <tr><td>variance</td><td>方差</td></tr>
+      <tr><td>standard deviation</td><td>標準差</td></tr>
+    </table></div>
+  </div>
+  <div class="block">
+    <h2>Questions to bring to class</h2>
+    <p class="muted small">Write down anything that confused you. This box is saved in this browser only.</p>
+    <textarea id="notes" placeholder="e.g. In the bakery question, why is the profit for D = 3 the same as for D = 2 when 2 cakes are made?"></textarea>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' },
+  startup: { typeset: false, ready: function(){ MathJax.startup.defaultReady(); MathJax.startup.promise.then(function(){ if (window.__typesetCurrent) window.__typesetCurrent(); }); } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=a%b;a=b;b=t}return a||1}
+function fr(n,d){if(d<0){n=-n;d=-d}const g=gcd(n,d);n/=g;d/=g;if(d===1)return String(n).replace('-','−');return (n<0?'−':'')+'<span class="fr"><span>'+Math.abs(n)+'</span><span>'+d+'</span></span>'}
+function fmt(v,dp=4){let r=Math.round(v*Math.pow(10,dp))/Math.pow(10,dp);if(Object.is(r,-0))r=0;return String(r).replace('-','−')}
+const NS='http://www.w3.org/2000/svg';
+const sleep=ms=>new Promise(r=>setTimeout(r,reduce?0:ms));
+
+/* ---------------- navigation ---------------- */
+const sections=[
+ ['start','Start here',3],['review','Quick review',6],['rv','Random variables',8],['dist','Probability distributions',10],
+ ['rep','Three representations',8],['exp','Expectation E(X)',9],['var','Variance Var(X)',9],['prop','E(aX+b) & Var(aX+b)',7],
+ ['skills','DSE question skills',10],['quiz','Pre-lesson check',8],['summary','Summary & notes',3]];
+const order=sections.map(s=>s[0]);
+const done=new Set(store.get('m1c9-done',[]));
+let current='start';
+const navList=$('#navList'), routeList=$('#routeList');
+sections.forEach(([id,name,m],i)=>{
+  const li=document.createElement('li');
+  li.innerHTML='<a href="#'+id+'" data-view="'+id+'"><span class="n">'+(i+1)+'</span><span>'+name+'</span><span class="tick" aria-hidden="true">✓</span></a>';
+  navList.appendChild(li);
+  if(i>0){const r=document.createElement('li');r.innerHTML='<a href="#'+id+'" data-view="'+id+'"><span>'+(i+1)+'. '+name+'</span><span class="mins">'+m+' min</span></a>';routeList.appendChild(r);}
+});
+document.addEventListener('click',e=>{const a=e.target.closest('a[data-view]');if(a){e.preventDefault();show(a.dataset.view);}});
+
+function refreshProgress(){
+  const n=done.size;
+  $('#progFill').style.width=(n/order.length*100)+'%';
+  $('#progTxt').textContent=n+'/'+order.length;
+  $$('a[data-view]').forEach(a=>a.classList.toggle('done',done.has(a.dataset.view)));
+  $$('.done-toggle').forEach(b=>{const on=done.has(b.dataset.id);b.setAttribute('aria-pressed',on);b.textContent=on?'✓ Section done':'Mark section done';});
+  const next=order.find(id=>id!=='start'&&!done.has(id));
+  const rb=$('#resumeBtn');
+  if(next){const idx=order.indexOf(next);rb.textContent=(n>0?'Continue with section ':'Start section ')+(idx+1);rb.dataset.go=next;$('#resumeTxt').textContent=sections[idx][1];}
+  else{rb.textContent='All sections done — open the summary';rb.dataset.go='summary';$('#resumeTxt').textContent='';}
+  store.set('m1c9-done',[...done]);
+}
+$('#resumeBtn').addEventListener('click',e=>show(e.currentTarget.dataset.go));
+
+order.forEach((id,i)=>{
+  const v=$('#v-'+id);const f=document.createElement('div');f.className='view-foot';
+  const prev=i>0?'<button class="btn" data-go="'+order[i-1]+'">← '+sections[i-1][1]+'</button>':'<span></span>';
+  const next=i<order.length-1?'<button class="btn primary" data-go="'+order[i+1]+'">'+sections[i+1][1]+' →</button>':'<span></span>';
+  f.innerHTML=prev+'<button class="btn done-toggle" data-id="'+id+'" aria-pressed="false">Mark section done</button>'+next;
+  v.appendChild(f);
+});
+document.addEventListener('click',e=>{
+  const g=e.target.closest('.view-foot [data-go]');if(g){if(current!=='start')done.add(current);refreshProgress();show(g.dataset.go);}
+  const t=e.target.closest('.done-toggle');if(t){const id=t.dataset.id;done.has(id)?done.delete(id):done.add(id);refreshProgress();}
+});
+
+const hooks={};
+function typeset(id){const el=$('#v-'+id);if(!el||el.dataset.tex==='1')return;if(window.MathJax&&MathJax.typesetPromise){el.dataset.tex='1';MathJax.typesetPromise([el]).catch(()=>{el.dataset.tex='0'});}}
+window.__typesetCurrent=()=>typeset(current);
+function show(id){
+  if(!order.includes(id))id='start';current=id;
+  $$('.view').forEach(v=>v.hidden=v.id!=='v-'+id);
+  $$('.nav a').forEach(a=>a.setAttribute('aria-current',a.dataset.view===id?'page':'false'));
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+  window.scrollTo(0,0);
+  typeset(id);
+  const a=$('.nav a[data-view="'+id+'"]');if(a&&matchMedia('(max-width:900px)').matches){const ol=a.closest('ol');ol.scrollLeft=a.offsetLeft-ol.clientWidth/2+a.clientWidth/2;}
+  if(hooks[id])hooks[id]();
+}
+
+/* ---------------- steppers ---------------- */
+$$('[data-stepper]').forEach(st=>{
+  const steps=$$('.step',st);let i=0;
+  const upd=()=>{steps.forEach((s,k)=>s.classList.toggle('shown',k<i));const nb=$('[data-act="next"]',st);nb.disabled=i>=steps.length;nb.textContent=i>=steps.length?'All steps shown':'Show next step';};
+  st.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;if(a==='next')i=Math.min(steps.length,i+1);if(a==='all')i=steps.length;if(a==='reset')i=0;upd();});
+  upd();
+});
+
+/* ---------------- review: dice events ---------------- */
+(function(){
+  const pos={1:[80,72],2:[175,60],3:[270,78],4:[115,140],5:[205,135],6:[305,140]};
+  let s='<rect class="frame" x="10" y="10" width="360" height="170" rx="10"/><text x="24" y="36" style="font-style:italic;font-weight:600">S</text>';
+  for(const n in pos){s+='<g class="pt" data-n="'+n+'"><circle cx="'+pos[n][0]+'" cy="'+pos[n][1]+'" r="21"/><text x="'+pos[n][0]+'" y="'+(pos[n][1]+6)+'">'+n+'</text></g>';}
+  $('#diceSvg').innerHTML=s;
+  const ev={odd:['Odd number',[1,3,5]],ge5:['At least 5',[5,6]],prime:['Prime number',[2,3,5]],even:['Even number',[2,4,6]]};
+  function set(k){const [name,set]=ev[k];$$('#diceSvg .pt').forEach(g=>g.classList.toggle('on',set.includes(+g.dataset.n)));
+    $$('#evBtns .btn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ev===k));
+    $('#evOut').innerHTML='S = {1, 2, 3, 4, 5, 6}. &nbsp;<i>E</i> = '+name.toLowerCase()+' = {'+set.join(', ')+'}. &nbsp;P(<i>E</i>) = '+set.length+'/6 = '+fr(set.length,6)+'.';}
+  $('#evBtns').addEventListener('click',e=>{const b=e.target.closest('[data-ev]');if(b)set(b.dataset.ev);});
+  set('odd');
+  let rel=false;
+  $('#relBtn').addEventListener('click',()=>{rel=!rel;const cells=$$('#relTable [data-f]');
+    cells.forEach(c=>c.innerHTML=rel?fr(+c.dataset.f,6):c.dataset.f);
+    $('#relHead').innerHTML=rel?'Relative frequency <i>f</i> ÷ Σ<i>f</i>':'Frequency <i>f</i>';
+    $('#relTot').textContent=rel?'1':'6';
+    $('#relBtn').textContent=rel?'Show frequencies again':'Divide each frequency by the total';
+    $('#relOut').innerHTML=rel?'Mean = 5 × '+fr(2,6)+' + 8 × '+fr(3,6)+' + 14 × '+fr(1,6)+' = 8. Same answer. Each datum is weighted by its relative frequency, and the weights add to 1.':'Mean = (5 × 2 + 8 × 3 + 14 × 1) ÷ 6 = 48 ÷ 6 = 8. Variance = [(5 − 8)² × 2 + 0 × 3 + (14 − 8)² × 1] ÷ 6 = 54 ÷ 6 = 9, so σ = 3.';});
+})();
+
+/* ---------------- random variable: bag ---------------- */
+(function(){
+  const pairs=[['W','W',0],['W','P',1],['P','W',1],['P','P',2]];
+  const py=[38,78,118,158], vy={0:45,1:100,2:155};
+  let s='';
+  pairs.forEach((p,i)=>{const y=py[i];
+    s+='<path class="arr" id="arr'+i+'" d="M242 '+y+' C330 '+y+' 380 '+vy[p[2]]+' 446 '+vy[p[2]]+'" marker-end="url(#ah)"/>';
+    s+='<g class="pair" id="pair'+i+'"><rect x="150" y="'+(y-16)+'" width="80" height="32" rx="16"/><circle class="ball'+p[0]+'" cx="174" cy="'+y+'" r="11"/><circle class="ball'+p[1]+'" cx="206" cy="'+y+'" r="11"/></g>';});
+  [0,1,2].forEach(v=>{s+='<g class="val" id="val'+v+'"><circle cx="500" cy="'+vy[v]+'" r="19"/><text x="500" y="'+(vy[v]+6)+'">'+v+'</text></g>';});
+  $('#mapInner').innerHTML=s;
+  const counts=[0,0,0];let total=0;
+  const theo=[.25,.5,.25];
+  const tally=$('#tally');
+  tally.innerHTML=[0,1,2].map(v=>'<div class="tr"><span class="mono">X = '+v+'</span><div class="trk"><div class="fil" id="fil'+v+'"></div><div class="theo" style="left:'+(theo[v]*100)+'%"></div></div><span class="cnt" id="cnt'+v+'">0</span></div>').join('');
+  function updTally(){[0,1,2].forEach(v=>{const r=total?counts[v]/total:0;$('#fil'+v).style.width=(r*100)+'%';$('#cnt'+v).textContent=counts[v]+(total?' ('+r.toFixed(2)+')':'');});}
+  function hot(i){pairs.forEach((p,k)=>{$('#pair'+k).classList.toggle('hot',k===i);const a=$('#arr'+k);a.classList.toggle('hot',k===i);a.setAttribute('marker-end',k===i?'url(#ah2)':'url(#ah)');});[0,1,2].forEach(v=>$('#val'+v).classList.toggle('hot',i!=null&&pairs[i][2]===v));}
+  const fly=$('#flyLayer');
+  function ball(col,from,to){return new Promise(res=>{const c=document.createElementNS(NS,'circle');c.setAttribute('class',col==='P'?'ballP':'ballW');c.setAttribute('cx',from[0]);c.setAttribute('cy',from[1]);c.setAttribute('r',17);fly.appendChild(c);
+    if(reduce||!c.animate){c.setAttribute('cx',to[0]);c.setAttribute('cy',to[1]);res();return;}
+    const an=c.animate([{transform:'translate(0px,0px)'},{transform:'translate('+(to[0]-from[0])/2+'px,'+(-60)+'px)',offset:.5},{transform:'translate('+(to[0]-from[0])+'px,'+(to[1]-from[1])+'px)'}],{duration:650,easing:'ease-in-out',fill:'forwards'});
+    an.onfinish=()=>res();});}
+  let busy=false;
+  const btns=['#drawOne','#drawMany','#drawReset'].map(q=>$(q));
+  $('#drawOne').addEventListener('click',async()=>{if(busy)return;busy=true;btns.forEach(b=>b.disabled=true);
+    fly.innerHTML='';hot(null);$('#outTxt').textContent='—';$('#xTxt').textContent='';
+    const a=Math.random()<.5?'P':'W', b=Math.random()<.5?'P':'W';
+    await ball(a,a==='P'?[104,150]:[148,156],[290,120]);
+    await ball(b,b==='P'?[104,150]:[148,156],[370,120]);
+    $('#outTxt').textContent=a+b;
+    await sleep(250);
+    const i=pairs.findIndex(p=>p[0]===a&&p[1]===b);hot(i);
+    $('#xTxt').textContent='X = '+pairs[i][2];
+    counts[pairs[i][2]]++;total++;updTally();
+    busy=false;btns.forEach(b=>b.disabled=false);});
+  $('#drawMany').addEventListener('click',()=>{let last=0;for(let k=0;k<200;k++){const a=Math.random()<.5,b=Math.random()<.5;last=(a?2:0)+(b?1:0);counts[(a?1:0)+(b?1:0)]++;total++;}
+    const i=[0,1,2,3][last];const p=[['W','W'],['W','P'],['P','W'],['P','P']][i];
+    fly.innerHTML='';hot(i);$('#outTxt').textContent=p.join('');$('#xTxt').textContent='X = '+pairs[i][2];updTally();});
+  $('#drawReset').addEventListener('click',()=>{counts.fill(0);total=0;fly.innerHTML='';hot(null);$('#outTxt').textContent='—';$('#xTxt').textContent='';updTally();});
+  updTally();
+
+  const items=[
+    ['The number of heads when 5 coins are tossed','fin','Discrete. The values 0, 1, 2, 3, 4, 5 form a finite list.'],
+    ['The number of calls a hotline receives in one hour','inf','Discrete. The values 0, 1, 2, … can be listed but the list has no last value.'],
+    ['The time taken by a student to run 100 m','no','Not discrete. Time can take any value in an interval (e.g. 13.27… s), so the values cannot be listed one by one.'],
+    ['The number of tosses of a coin needed to get the first head','inf','Discrete. The values 1, 2, 3, … go on without end.'],
+    ['The sum of the numbers shown when two dice are thrown','fin','Discrete. The values are 2, 3, …, 12.'],
+    ['The height of a randomly chosen student','no','Not discrete. Height is measured on a continuous scale.']];
+  const lab={fin:'Discrete (finite)',inf:'Discrete (infinite)',no:'Not discrete'};
+  $('#sorter').innerHTML=items.map((it,i)=>'<div class="item" data-ans="'+it[1]+'"><span>'+it[0]+'</span><div class="opts">'+Object.keys(lab).map(k=>'<button class="btn" data-k="'+k+'">'+lab[k]+'</button>').join('')+'</div><div class="fb">'+it[2]+'</div></div>').join('');
+  $('#sorter').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const it=b.closest('.item');const ok=b.dataset.k===it.dataset.ans;it.classList.toggle('right',ok);it.classList.toggle('wrong',!ok);$$('.btn',it).forEach(x=>x.setAttribute('aria-pressed',x===b));const fb=$('.fb',it);fb.innerHTML=(ok?'<strong>Correct.</strong> ':'<strong>Not quite.</strong> ')+items[[...it.parentNode.children].indexOf(it)][2];});
+})();
+
+/* ---------------- distribution: coin tree ---------------- */
+(function(){
+  const L=[[[34,165]],[[150,85],[150,245]],[[262,45],[262,125],[262,205],[262,285]],Array.from({length:8},(_,i)=>[372,25+40*i])];
+  let s='';
+  for(let l=1;l<=3;l++){L[l].forEach(([x,y],i)=>{const [px,py]=L[l-1][i>>1];const sym=i%2?'T':'H';const mx=(px+x)/2,my=(py+y)/2;
+    s+='<line class="edge" data-s="'+l+'" pathLength="1" x1="'+(px+5)+'" y1="'+py+'" x2="'+(x-5)+'" y2="'+y+'"/>';
+    s+='<text class="elab" data-s="'+l+'" x="'+(mx-4)+'" y="'+(my+(sym==='H'?-7:16))+'">'+sym+'</text>';});}
+  L.forEach((lv,l)=>lv.forEach(([x,y])=>{s+='<circle class="node"'+(l?' data-s="'+l+'"':'')+' cx="'+x+'" cy="'+y+'" r="4.5"/>';}));
+  s+='<text class="lbl" x="34" y="190" text-anchor="middle">Start</text>';
+  L[3].forEach(([x,y],i)=>{const seq=[2,1,0].map(b=>(i>>b)&1?'T':'H').join('');const h=seq.split('').filter(c=>c==='H').length;
+    s+='<text class="seq" data-s="3" x="'+(x+16)+'" y="'+(y+5)+'">'+seq+'</text>';
+    s+='<g data-s="4"><rect class="x'+h+'" x="460" y="'+(y-11)+'" width="64" height="22" rx="11"/><text class="chiptxt" x="492" y="'+(y+4)+'" text-anchor="middle">X = '+h+'</text></g>';});
+  $('#treeSvg').innerHTML=s;
+  const caps=['Three tosses of an unbiased coin. Press "Next step" to build the tree.',
+    '1st toss: H or T.',
+    '2nd toss: each branch splits again, giving 4 outcomes so far.',
+    '3rd toss: 2 × 2 × 2 = 8 equally likely sample points.',
+    'Apply the random variable X = number of heads to every sample point.',
+    'Group the sample points with the same value of X. Three sample points give X = 1, so P(X = 1) = 3/8.'];
+  let step=0;const box=$('#v-dist');
+  function apply(){$$('[data-s]',box).forEach(e=>e.classList.toggle('on',+e.dataset.s<=step));$('#treeCap').textContent=caps[step];$('#treeNext').disabled=step>=5;}
+  $('#treeNext').addEventListener('click',()=>{step=Math.min(5,step+1);apply();});
+  $('#treeReset').addEventListener('click',()=>{step=0;apply();});
+  $('#treePlay').addEventListener('click',async()=>{step=0;apply();for(let k=1;k<=5;k++){await sleep(900);step=k;apply();}});
+  apply();
+
+  const tables=[
+    {x:[0,1,2,3],p:['0.1','0.4','0.3','0.2'],ok:true,why:'Every probability is between 0 and 1, and 0.1 + 0.4 + 0.3 + 0.2 = 1.'},
+    {x:[1,2,3],p:['1/3','1/2','1/4'],ok:false,why:'1/3 + 1/2 + 1/4 = 13/12 > 1, so condition (b) fails.'},
+    {x:[-1,0,1],p:['0.5','−0.1','0.6'],ok:false,why:'P(X = 0) = −0.1 < 0, so condition (a) fails, even though the sum is 1.'},
+    {x:[2,4,6],p:['0.25','0.45','0.3'],ok:true,why:'All values are between 0 and 1, and 0.25 + 0.45 + 0.3 = 1.'}];
+  $('#checker').innerHTML=tables.map((t,i)=>'<div class="item" data-ans="'+(t.ok?'y':'n')+'" data-i="'+i+'"><div class="dtwrap"><table class="dt" style="margin:0"><tr><th><i>x</i></th>'+t.x.map(v=>'<td>'+String(v).replace('-','−')+'</td>').join('')+'</tr><tr><th>P(<i>X</i> = <i>x</i>)</th>'+t.p.map(v=>'<td>'+v+'</td>').join('')+'</tr></table></div><div class="opts"><button class="btn" data-k="y">Valid</button><button class="btn" data-k="n">Not valid</button></div><div class="fb"></div></div>').join('');
+  $('#checker').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const it=b.closest('.item');const ok=b.dataset.k===it.dataset.ans;it.classList.toggle('right',ok);it.classList.toggle('wrong',!ok);$$('.btn',it).forEach(x=>x.setAttribute('aria-pressed',x===b));$('.fb',it).innerHTML=(ok?'<strong>Correct.</strong> ':'<strong>Not quite.</strong> ')+tables[+it.dataset.i].why;});
+})();
+
+/* ---------------- representations ---------------- */
+(function(){
+  $('#repTabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;const k=+b.dataset.tab;
+    $$('#repTabs .btn').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    $$('#repStack > *').forEach((p,i)=>p.classList.toggle('on',i===k));
+    if(k===1){const bars=$$('#diceBars .grow');bars.forEach(r=>{r.style.transition='none';r.style.transform='scaleY(0)';});requestAnimationFrame(()=>requestAnimationFrame(()=>bars.forEach((r,i)=>{r.style.transition='';r.style.transitionDelay=(i*.12)+'s';r.style.transform='scaleY(1)';})));}});
+  const svg=$('#cBars');
+  let s='<line class="axis" x1="30" x2="400" y1="160" y2="160"/><line class="gridl" x1="30" x2="400" y1="60" y2="60"/><text class="lbl-s" x="26" y="64" text-anchor="end">0.5</text><text class="lbl-s" x="26" y="163" text-anchor="end">0</text>';
+  for(let x=1;x<=4;x++){const cx=30+x*80;s+='<rect class="grow bar-v" id="cb'+x+'" x="'+(cx-14)+'" y="0" width="28" height="160" style="transform:scaleY(0)"/><text class="lbl" x="'+cx+'" y="177" text-anchor="middle">'+x+'</text><text class="lbl-s" id="cl'+x+'" x="'+cx+'" y="150" text-anchor="middle"></text>';}
+  svg.innerHTML=s;
+  /* bars span y 0..160 (height 160) and are scaled to P/0.8 so that P=0.5 reaches y=60 */
+  function upd(){const c=+$('#cSlider').value;$('#cOut').textContent=c.toFixed(2);
+    for(let x=1;x<=4;x++){const p=c*x;const r=$('#cb'+x);r.style.transform='scaleY('+Math.min(1,p/0.8)+')';const t=$('#cl'+x);t.textContent=fmt(p,2);t.setAttribute('y',Math.max(12,160-Math.min(1,p/0.8)*160-6));}
+    const sum=Math.round(c*1000)/100;const st=$('#cStatus');
+    if(Math.abs(sum-1)<1e-9){st.className='status ok';st.innerHTML='Σ P(X = x) = 10c = 1 ✓ &nbsp;Valid: c = 0.1 = 1/10, and every probability lies between 0 and 1.';}
+    else if(sum<1){st.className='status mid';st.innerHTML='Σ P(X = x) = 10c = '+fmt(sum,2)+' &lt; 1. Not a probability function yet.';}
+    else{st.className='status bad';st.innerHTML='Σ P(X = x) = 10c = '+fmt(sum,2)+' &gt; 1. Not a probability function.';}}
+  $('#cSlider').addEventListener('input',upd);upd();
+})();
+
+/* ---------------- expectation: simulation ---------------- */
+(function(){
+  const prizes=[10,50,200];let n=0,sum=0;const cnt=[0,0,0];let hist=[];
+  const cv=$('#simCanvas');
+  function col(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||'#888';}
+  function draw(){const w=cv.clientWidth;if(!w)return;const h=220,dpr=window.devicePixelRatio||1;cv.width=w*dpr;cv.height=h*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);
+    const L=42,R=12,T=12,B=26,pw=w-L-R,ph=h-T-B,ymax=200;const N=Math.max(10,n);
+    const X=i=>L+(i/N)*pw, Y=v=>T+ph-(v/ymax)*ph;
+    c.font='11px "IBM Plex Mono", monospace';c.textAlign='right';c.textBaseline='middle';
+    [0,50,100,150,200].forEach(v=>{c.strokeStyle=col('--line');c.lineWidth=1;c.beginPath();c.moveTo(L,Y(v));c.lineTo(w-R,Y(v));c.stroke();c.fillStyle=col('--ink-3');c.fillText('$'+v,L-6,Y(v));});
+    c.textAlign='left';c.fillStyle=col('--ink-3');c.textBaseline='alphabetic';c.fillText('0',L,h-8);c.textAlign='right';c.fillText(N+' plays',w-R,h-8);
+    c.setLineDash([6,4]);c.strokeStyle=col('--amber');c.lineWidth=2;c.beginPath();c.moveTo(L,Y(60));c.lineTo(w-R,Y(60));c.stroke();c.setLineDash([]);
+    c.fillStyle=col('--amber');c.textAlign='left';c.font='600 12px "IBM Plex Sans", sans-serif';c.fillText('E(X) = 60',L+6,Y(60)-6);
+    if(hist.length){c.strokeStyle=col('--violet');c.lineWidth=2;c.beginPath();const step=Math.max(1,Math.floor(hist.length/800));
+      for(let i=0;i<hist.length;i+=step){const x=X(i+1),y=Y(hist[i]);i===0?c.moveTo(x,y):c.lineTo(x,y);}
+      c.lineTo(X(hist.length),Y(hist[hist.length-1]));c.stroke();
+      c.fillStyle=col('--violet');c.beginPath();c.arc(X(hist.length),Y(hist[hist.length-1]),4,0,7);c.fill();}}
+  function upd(last){$('#sN').textContent=n;$('#sAvg').textContent=n?'$'+(sum/n).toFixed(2):'—';
+    const rows=$$('#simTable tr');rows[1].querySelectorAll('td').forEach((td,i)=>td.textContent=cnt[i]);rows[2].querySelectorAll('td').forEach((td,i)=>td.textContent=n?(cnt[i]/n).toFixed(3):'—');
+    $('#lastWin').textContent=last!=null?'Last draw: $'+last:'';draw();}
+  function play(k){let last=null;for(let j=0;j<k;j++){const r=Math.random();const i=r<.5?0:r<.8?1:2;cnt[i]++;n++;sum+=prizes[i];last=prizes[i];if(hist.length<20000)hist.push(sum/n);}upd(last);}
+  $$('[data-sim]').forEach(b=>b.addEventListener('click',()=>play(+b.dataset.sim)));
+  $('#simReset').addEventListener('click',()=>{n=0;sum=0;cnt.fill(0);hist=[];upd(null);});
+  hooks.exp=()=>requestAnimationFrame(draw);
+  window.addEventListener('resize',()=>{if(current==='exp')draw();});
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(current==='exp')draw();});
+  new MutationObserver(()=>{if(current==='exp')draw();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  upd(null);
+
+  /* balance point */
+  let w=[1,2,4,2,1];const bs=$('#balSvg');
+  let s='<line class="axis" x1="20" x2="500" y1="200" y2="200" style="stroke-width:3"/>';
+  for(let k=0;k<5;k++){const cx=60+k*100;s+='<rect class="grow bar-v" id="bb'+k+'" x="'+(cx-18)+'" y="30" width="36" height="170"/><text class="lbl-s" id="bt'+k+'" x="'+cx+'" y="192" text-anchor="middle" style="transition:transform .5s"></text><text class="lbl" x="'+cx+'" y="242" text-anchor="middle">'+(k+1)+'</text>';}
+  s+='<g id="fulc" class="slide"><path class="fulcrum" d="M0 202 L-15 230 L15 230 Z"/></g>';
+  bs.innerHTML=s;
+  $('#balBtns').innerHTML=[0,1,2,3,4].map(k=>'<div><button class="btn" data-k="'+k+'" data-d="1" aria-label="Add weight at x = '+(k+1)+'">+</button><button class="btn" data-k="'+k+'" data-d="-1" aria-label="Remove weight at x = '+(k+1)+'">−</button></div>').join('');
+  function bal(){const T=w.reduce((a,b)=>a+b,0);let num=0;w.forEach((v,k)=>num+=(k+1)*v);
+    w.forEach((v,k)=>{const p=v/T;$('#bb'+k).style.transform='scaleY('+p+')';const t=$('#bt'+k);t.textContent=v?(v+'/'+T):'0';t.style.transform='translateY('+(-p*170)+'px)';});
+    const E=num/T;$('#fulc').style.transform='translateX('+(60+(E-1)*100)+'px)';
+    $('#balOut').innerHTML='E(<i>X</i>) = Σ <i>x</i>P(<i>X</i> = <i>x</i>) = '+w.map((v,k)=>(k+1)+'('+fr(v,T)+')').join(' + ')+' = '+fr(num,T)+(Number.isInteger(num/T)?'':' ≈ '+fmt(num/T,3));}
+  $('#balBtns').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=+b.dataset.k,d=+b.dataset.d;const T=w.reduce((a,c)=>a+c,0);
+    if(d<0&&(w[k]===0||T===1))return;if(d>0&&w[k]>=9)return;w[k]+=d;bal();});
+  $('#balPresets').addEventListener('click',e=>{const b=e.target.closest('[data-w]');if(!b)return;w=b.dataset.w.split(',').map(Number);bal();});
+  bal();
+})();
+
+/* ---------------- variance compare ---------------- */
+(function(){
+  const D={A:[.05,.15,.6,.15,.05],B:[.3,.1,.2,.1,.3]};
+  const svg=$('#vcSvg');
+  let s='<line class="axis" x1="20" x2="500" y1="170" y2="170"/><line x1="260" x2="260" y1="14" y2="170" style="stroke:var(--amber);stroke-width:2;stroke-dasharray:5 4"/><text x="266" y="24" style="fill:var(--amber);font-size:13px;font-weight:600">μ = 3</text>';
+  for(let k=0;k<5;k++){const cx=60+k*100,dev=(k+1-3);s+='<rect class="grow bar-v" id="vb'+k+'" x="'+(cx-18)+'" y="38" width="36" height="132"/><text class="lbl-s" id="vp'+k+'" x="'+cx+'" y="162" text-anchor="middle" style="transition:transform .5s"></text><text class="lbl" x="'+cx+'" y="188" text-anchor="middle">'+(k+1)+'</text><text class="lbl-s" x="'+cx+'" y="210" text-anchor="middle">(x−μ)² = '+dev*dev+'</text>';
+    if(dev){const x1=260+(dev>0?4:-4),x2=cx+(dev>0?-20:20);const yy=Math.abs(dev)===2?232:222;s+='<line x1="'+x1+'" x2="'+x2+'" y1="'+yy+'" y2="'+yy+'" style="stroke:'+(Math.abs(dev)===2?'var(--amber)':'var(--violet)')+';stroke-width:2"/>';}}
+  s+='<text class="lbl-s" x="260" y="248" text-anchor="middle">distance from μ</text>';
+  svg.innerHTML=s;
+  const colr=k=>Math.abs(k+1-3)===2?'var(--amber)':'var(--violet)';
+  function set(d){const p=D[d];let v=0;const parts=p.map((q,k)=>{const c=(k+1-3)**2*q;v+=c;return c;});
+    p.forEach((q,k)=>{$('#vb'+k).style.transform='scaleY('+(q/0.6)+')';const t=$('#vp'+k);t.textContent=q;t.style.transform='translateY('+(-(q/0.6)*132)+'px)';});
+    $('#vcContrib').innerHTML=parts.map((c,k)=>c>0?'<div style="width:'+(c/2.6*100)+'%;background:'+colr(k)+'" title="x = '+(k+1)+'">'+(c/2.6>0.06?fmt(c,2):'')+'</div>':'').join('');
+    $('#vcOut').innerHTML='Distribution '+d+': E(<i>X</i>) = 3 and Var(<i>X</i>) = '+parts.filter(c=>c>0).map(c=>fmt(c,2)).join(' + ')+' = <strong>'+fmt(v,2)+'</strong>, σ ≈ '+fmt(Math.sqrt(v),3)+'. '+(d==='A'?'Most of the probability sits at the mean, so the spread is small.':'Much of the probability is 2 units from the mean, and squared distances make those values count heavily.');
+    $$('#vcBtns .btn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.d===d));}
+  $('#vcBtns').addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(b)set(b.dataset.d);});
+  set('A');
+
+  /* working table */
+  const M={
+    short:{rows:[['<i>x</i>',[0,1,2,3],0],['P(<i>X</i> = <i>x</i>)',[.1,.2,.3,.4],0,'1',0],['<i>x</i>P(<i>X</i> = <i>x</i>)',[0,.2,.6,1.2],1,'2',2],['<i>x</i>²P(<i>X</i> = <i>x</i>)',[0,.2,1.2,3.6],3,'5',4]],
+      res:[[2,'E(X) = Σ xP(X = x) = 2'],[4,'E(X²) = Σ x²P(X = x) = 5'],[5,'Var(X) = E(X²) − [E(X)]² = 5 − 2² = 1'],[6,'σ = √1 = 1']],
+      caps:['Start with the distribution. Add a "Sum" column on the right.','Multiply each x by its probability.','Add the row: E(X) = 2.','Multiply each x² by its probability (square x first, then multiply).','Add the row: E(X²) = 5.','Subtract the square of E(X).','Take the square root for the standard deviation. Done.']},
+    def:{rows:[['<i>x</i>',[0,1,2,3],0],['P(<i>X</i> = <i>x</i>)',[.1,.2,.3,.4],0,'1',0],['<i>x</i>P(<i>X</i> = <i>x</i>)',[0,.2,.6,1.2],1,'2',2],['<i>x</i> − μ',[-2,-1,0,1],3],['(<i>x</i> − μ)²P(<i>X</i> = <i>x</i>)',[.4,.2,0,.4],4,'1',5]],
+      res:[[2,'μ = E(X) = 2'],[5,'Var(X) = Σ (x − μ)²P(X = x) = 1'],[6,'σ = √1 = 1']],
+      caps:['Start with the distribution.','Multiply each x by its probability.','Add the row: μ = 2. You need μ before anything else.','Find each distance from the mean.','Square each distance, then multiply by the probability.','Add the row: Var(X) = 1. Same answer as the shortcut.','Take the square root. Done.']}};
+  let m='short',st=0;
+  function build(){const d=M[m];let h='';
+    d.rows.forEach(r=>{h+='<tr><th class="c" data-s="'+r[2]+'">'+r[0]+'</th>'+r[1].map(v=>'<td class="c" data-s="'+r[2]+'">'+fmt(v)+'</td>').join('')+(r[3]!=null?'<td class="c sum" data-s="'+r[4]+'">'+r[3]+'</td>':'<td class="c" data-s="0" style="border:none"></td>')+'</tr>';});
+    $('#vtTable').innerHTML='<tr><th class="c on" data-s="0"></th><th class="c on" data-s="0" colspan="4">Values</th><th class="c on" data-s="0">Sum</th></tr>'+h;
+    $('#vtRes').innerHTML=d.res.map(r=>'<div data-s="'+r[0]+'">'+r[1]+'</div>').join('');
+    $$('#vtMethod .btn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));apply();}
+  function apply(){$$('#vtTable [data-s], #vtRes [data-s]').forEach(e=>e.classList.toggle('on',+e.dataset.s<=st));$('#vtCap').textContent=M[m].caps[st];$('#vtNext').disabled=st>=6;}
+  $('#vtNext').addEventListener('click',()=>{st=Math.min(6,st+1);apply();});
+  $('#vtReset').addEventListener('click',()=>{st=0;apply();});
+  $('#vtMethod').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;m=b.dataset.m;st=0;build();});
+  build();
+})();
+
+/* ---------------- transform lab ---------------- */
+(function(){
+  const X=[2,4,5,10],P=[1,2,1,1];const EX=5,VX=36/5;
+  const px=v=>320+v*7.25;const AX=178;
+  const svg=$('#tfSvg');
+  let s='';
+  for(let v=-40;v<=40;v+=10){s+='<line class="gridl" x1="'+px(v)+'" x2="'+px(v)+'" y1="20" y2="'+AX+'"/><text class="lbl-s" x="'+px(v)+'" y="'+(AX+16)+'" text-anchor="middle">'+String(v).replace('-','−')+'</text>';}
+  s+='<line class="axis" x1="'+px(-40)+'" x2="'+px(40)+'" y1="'+AX+'" y2="'+AX+'"/>';
+  X.forEach((v,i)=>{const h=P[i]/5*150;s+='<rect class="ghost" x="'+(px(v)-8)+'" y="'+(AX-h)+'" width="16" height="'+h+'"/>';});
+  X.forEach((v,i)=>{const h=P[i]/5*150;s+='<g class="slide" id="yb'+i+'"><rect class="bar-v" x="-6" y="'+(-h)+'" width="12" height="'+h+'" style="opacity:.92"/></g>';});
+  s+='<path d="M'+px(EX)+' '+(AX+22)+' l-7 12 h14 z" class="ghost" style="stroke-dasharray:none"/>';
+  s+='<g class="slide" id="yMean"><path class="fulcrum" d="M0 '+(AX+22)+' l-8 14 h16 z"/></g>';
+  s+='<rect class="slide" id="ySd" x="0" y="'+(AX+40)+'" width="1" height="5" style="fill:var(--amber);opacity:.7"/>';
+  svg.innerHTML=s;
+  function upd(){const a=+$('#aSl').value,b=+$('#bSl').value;$('#aOut').textContent=fmt(a);$('#bOut').textContent=fmt(b);
+    const Y=X.map(x=>a*x+b);const EY=Y.reduce((s,y,i)=>s+y*P[i]/5,0);const VY=Y.reduce((s,y,i)=>s+(y-EY)**2*P[i]/5,0);
+    const stack={};Y.forEach((y,i)=>{const k=fmt(y);const off=stack[k]||0;stack[k]=off+P[i]/5*150;$('#yb'+i).style.transform='translate('+px(y)+'px,'+(AX-off)+'px)';});
+    $('#yMean').style.transform='translateX('+px(EY)+'px)';
+    const sd=Math.sqrt(VY);$('#ySd').style.transform='translate('+px(EY-sd)+'px,0px) scale('+Math.max(0.001,2*sd*7.25)+',1)';
+    $('#tfTable').innerHTML='<tr><th><i>x</i></th>'+X.map(x=>'<td>'+x+'</td>').join('')+'</tr><tr><th><i>y</i> = '+(a===1?'':a===-1?'−':fmt(a))+'<i>x</i>'+(b?(b>0?' + ':' − ')+Math.abs(b):'')+'</th>'+Y.map(y=>'<td>'+fmt(y)+'</td>').join('')+'</tr><tr><th>Probability</th>'+P.map(p=>'<td>'+fr(p,5)+'</td>').join('')+'</tr>';
+    $('#roE1').textContent='Directly: Σ yP = '+fmt(EY);
+    $('#roE2').textContent='Property: aE(X) + b = '+fmt(a)+' × 5 '+(b<0?'− ':'+ ')+Math.abs(b)+' = '+fmt(a*EX+b);
+    $('#roE3').textContent=Math.abs(EY-(a*EX+b))<1e-9?'✓ They agree':'';
+    $('#roV1').textContent='Directly: Σ (y − μ)²P = '+fmt(VY);
+    $('#roV2').textContent='Property: a²Var(X) = ('+fmt(a)+')² × 7.2 = '+fmt(a*a*VX);
+    $('#roV3').textContent=(Math.abs(VY-a*a*VX)<1e-9?'✓ They agree':'')+(b!==0?' · b has no effect on the variance':'');}
+  $('#aSl').addEventListener('input',upd);$('#bSl').addEventListener('input',upd);
+  $('#tfPresets').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;$('#aSl').value=b.dataset.a;$('#bSl').value=b.dataset.b;upd();});
+  upd();
+})();
+
+/* ---------------- quiz ---------------- */
+(function(){
+  const Q=[
+    {t:'mcq',q:'Which of the following is a discrete random variable?',o:['The time taken to run 100 m','The number of goals scored in a football match','The height of a student','The mass of an apple'],a:1,e:'Goals can be counted: 0, 1, 2, …. Time, height and mass are measured on a continuous scale.'},
+    {t:'mcq',q:'Which list of probabilities could be a probability distribution for x = 1, 2, 3?',o:['0.6, 0.5, −0.1','0.5, 0.3, 0.2','0.3, 0.3, 0.3','1/2, 1/3, 1/4'],a:1,e:'Only 0.5, 0.3, 0.2 has every value between 0 and 1 and a total of 1. (0.3 × 3 = 0.9; 1/2 + 1/3 + 1/4 = 13/12; −0.1 is negative.)'},
+    {t:'num',q:'P(X = x) = kx for x = 1, 2, 3, 4. Find k.',a:0.1,e:'k(1 + 2 + 3 + 4) = 1, so 10k = 1 and k = 0.1.'},
+    {t:'num',q:'X takes the values 0, 1, 2 with probabilities 0.3, 0.5, 0.2. Find E(X).',a:0.9,e:'E(X) = 0(0.3) + 1(0.5) + 2(0.2) = 0.9.'},
+    {t:'num',q:'For the same X (values 0, 1, 2 with probabilities 0.3, 0.5, 0.2), find Var(X).',a:0.49,e:'E(X²) = 0 + 1(0.5) + 4(0.2) = 1.3, so Var(X) = 1.3 − 0.9² = 0.49.'},
+    {t:'mcq',q:'Var(X) = 4. Find Var(3 − 2X).',o:['−5','8','16','19'],a:2,e:'Var(3 − 2X) = (−2)² × 4 = 16. The constant 3 has no effect, and −2 is squared.'},
+    {t:'num',q:'E(X) = 5. Find E(2X + 3).',a:13,e:'E(2X + 3) = 2E(X) + 3 = 13.'},
+    {t:'mcq',q:'E(X) = 2 and Var(X) = 1. Find E(X²).',o:['1','3','4','5'],a:3,e:'Var(X) = E(X²) − [E(X)]², so E(X²) = 1 + 2² = 5.'},
+    {t:'mcq',q:'A game is fair when…',o:['every outcome is equally likely','the player wins half of the games','the expected net gain of the player is 0','the prize equals the entry fee'],a:2,e:'Fair means E(net gain) = 0: in the long run the player neither gains nor loses.'},
+    {t:'num',q:'X is the number shown when a fair ordinary dice is thrown. Find E(X).',a:3.5,e:'E(X) = (1 + 2 + 3 + 4 + 5 + 6) × 1/6 = 21/6 = 3.5. It is not a value X can take, which is fine.'},
+    {t:'mcq',q:'The standard deviation of X is 0.7. Find the standard deviation of Y = 10X.',o:['0.7','7','49','70'],a:1,e:'σ(aX + b) = |a|σ, so σ(Y) = 10 × 0.7 = 7. (Var(Y) = 100 × 0.49 = 49.)'}];
+  let state=store.get('m1c9-quiz',{});
+  function parse(s){s=String(s).trim().replace('−','-');if(!s)return NaN;if(s.includes('/')){const [a,b]=s.split('/').map(Number);return a/b;}return Number(s);}
+  function render(){
+    $('#quiz').innerHTML=Q.map((q,i)=>{const st=state[i];let body='';
+      if(q.t==='mcq')body='<div class="qopts">'+q.o.map((o,k)=>{let cls='btn qopt';if(st){if(k===q.a)cls+=' right';else if(k===st.ans)cls+=' wrong';}return '<button class="'+cls+'" data-q="'+i+'" data-k="'+k+'"'+(st?' disabled':'')+'>'+String.fromCharCode(65+k)+'. '+o+'</button>';}).join('')+'</div>';
+      else body='<div class="qin"><input id="qi'+i+'" inputmode="decimal" aria-label="Answer to question '+(i+1)+'" value="'+(st?st.ans:'')+'"'+(st?' disabled':'')+'><button class="btn primary" data-q="'+i+'" data-check="1"'+(st?' disabled':'')+'>Check</button></div>';
+      const fb=st?'<div class="qfb '+(st.ok?'ok':'no')+'"><strong>'+(st.ok?'Correct.':'Not quite.')+'</strong> '+q.e+'</div>':'';
+      return '<div class="qcard"><div class="qh"><span class="qn">Q'+(i+1)+'</span><span>'+q.q+'</span></div>'+body+fb+'</div>';}).join('');
+    const sc=Object.values(state).filter(s=>s.ok).length;$('#qScore').textContent=sc+' / '+Q.length;
+    if(Object.keys(state).length===Q.length){done.add('quiz');refreshProgress();}}
+  $('#quiz').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;const i=+b.dataset.q,q=Q[i];
+    if(q.t==='mcq'){const k=+b.dataset.k;state[i]={ans:k,ok:k===q.a};}
+    else{const raw=$('#qi'+i).value;const v=parse(raw);if(isNaN(v)){$('#qi'+i).focus();return;}state[i]={ans:raw,ok:Math.abs(v-q.a)<0.005};}
+    store.set('m1c9-quiz',state);render();});
+  $('#quiz').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.qin input')){const b=e.target.parentNode.querySelector('[data-check]');b&&b.click();}});
+  $('#qReset').addEventListener('click',()=>{state={};store.set('m1c9-quiz',state);render();});
+  render();
+})();
+
+/* ---------------- notes ---------------- */
+const notes=$('#notes');notes.value=store.get('m1c9-notes','');notes.addEventListener('input',()=>store.set('m1c9-notes',notes.value));
+
+refreshProgress();
+const h=(location.hash||'').slice(1);
+show(order.includes(h)?h:'start');
+})();
+</script>
+
+</body></html>
